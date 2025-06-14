@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Universal Contribution Manager</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <style>
+        .offline-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        .offline-content {
+            max-width: 500px;
+        }
+        .offline-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 2rem;
+            color: var(--color-gray-400);
+        }
+        .offline-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--color-gray-800);
+            margin-bottom: 1rem;
+        }
+        .offline-description {
+            color: var(--color-gray-600);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .retry-button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .retry-button:hover {
+            background-color: var(--color-primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-content">
+            <svg class="offline-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.07 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+            </svg>
+            
+            <h1 class="offline-title">You're Offline</h1>
+            
+            <p class="offline-description">
+                It looks like you've lost your internet connection. 
+                Please check your connection and try again.
+            </p>
+            
+            <button class="retry-button" onclick="window.location.reload()">
+                Try Again
+            </button>
+        </div>
+    </div>
+</body>
+</html>
