@@ -1,0 +1,448 @@
+/* Reports Section Styles */
+
+/* Reports Section Header */
+.contributions h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-size: 22px;
+}
+
+/* Report Generation Card */
+.report-filters {
+    padding: 0;
+}
+
+.report-filters .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.report-filters .form-row:last-child {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.report-filters .form-group {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.report-filters .form-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.report-filters .form-group select {
+    padding: 10px 12px;
+    border: 2px solid var(--border-lightest);
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.report-filters .form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.report-filters .btn {
+    margin-top: 0;
+    padding: 12px 24px;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+/* Member select group - hidden by default for certain report types */
+#member-select-group {
+    display: block;
+}
+
+/* Report Output Container */
+.report-output {
+    margin-top: 24px;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 12px;
+    border: none;
+    display: none; /* Hidden by default until a report is generated */
+}
+
+/* Report Header */
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px 12px 0 0;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.report-header h3 {
+    margin: 0;
+    color: #ffffff !important;
+    flex: 1;
+    min-width: 200px;
+    font-size: 20px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.report-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.report-actions .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+}
+
+.report-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.report-actions .btn-success {
+    background: #25D366;
+    border-color: #25D366;
+}
+
+.report-actions .btn-success:hover {
+    background: #20ba5a;
+    border-color: #20ba5a;
+}
+
+.report-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background-color: var(--bg-tertiary);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+/* Report Content */
+.report-content {
+    background-color: var(--bg-secondary);
+    padding: 24px;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    min-height: 200px;
+    color: var(--text-primary);
+}
+
+/* Empty report content state */
+.report-content:empty::before {
+    content: '📊 Click "Generate" to create a report';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #999;
+    font-size: 16px;
+    font-style: italic;
+}
+
+/* Column Selector */
+.column-selector {
+    background-color: #f8f9fa;
+    padding: 16px;
+    margin: 0 24px 16px 24px;
+    border-radius: 8px;
+    border: 2px solid #667eea;
+}
+
+.column-selector-content h4 {
+    margin: 0 0 16px 0;
+    color: #667eea;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#column-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+#column-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#column-checkboxes label:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+#column-checkboxes input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.column-selector-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.column-selector-actions .btn {
+    min-width: 100px;
+}
+
+/* Report Summary */
+.report-summary {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.report-summary h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--primary-color);
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-summary h4::before {
+    content: '📊';
+    font-size: 20px;
+}
+
+.report-summary p {
+    margin: 12px 0;
+    font-size: 15px;
+    line-height: 1.8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.report-summary p:last-child {
+    border-bottom: none;
+}
+
+.report-summary p strong {
+    margin-left: auto;
+    font-size: 16px;
+}
+
+.report-summary .paid,
+.report-summary p.paid,
+.report-summary p.paid strong {
+    color: #27ae60 !important;
+    font-weight: 700 !important;
+}
+
+.report-summary .unpaid,
+.report-summary p.unpaid,
+.report-summary p.unpaid strong {
+    color: #e74c3c !important;
+    font-weight: 700 !important;
+}
+
+/* Share Options */
+.share-options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.share-btn {
+    padding: 12px 20px;
+    flex: 1;
+    max-width: 150px;
+}
+
+.btn-success {
+    background-color: #25D366;
+}
+
+.btn-info {
+    background-color: #3498db;
+}
+
+/* Blacklist UI improvements */
+.blacklist-section {
+    margin-bottom: 20px;
+}
+
+.blacklist-section .card {
+    border-left: 4px solid #ffc107;
+}
+
+.blacklist-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 22px;
+}
+
+.blacklist-section h3 {
+    color: #856404;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.blacklist-section .form-group {
+    margin-bottom: 16px;
+}
+
+.blacklist-section .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.blacklist-section input {
+    width: 100%;
+    max-width: 400px;
+}
+
+.blacklist-section .btn {
+    margin-top: 8px;
+}
+
+/* Settings Section */
+.settings-section {
+    background-color: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: #667eea;
+    font-size: 18px;
+}
+
+/* Database Status Card */
+.sync-info {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.sync-info h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* WhatsApp Settings Card */
+.card {
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    color: #667eea;
+    font-size: 18px;
+}
+
+/* Quick Actions */
+.button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.button-group .btn {
+    flex: 1;
+    min-width: 200px;
+    justify-content: center;
+}
+
+/* Yearly view styles */
+.yearly-paid {
+    color: green;
+    font-weight: 600;
+}
+
+.yearly-unpaid {
+    color: red;
+    font-weight: 600;
+}

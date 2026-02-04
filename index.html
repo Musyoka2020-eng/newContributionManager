@@ -1,90 +1,15 @@
 <!DOCTYPE html>
-<html lan    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com;";="en">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Universal Contribution Manager - A modern, secure, and scalable contribution management system for organizations">
-    <meta name="keywords" content="contribution management, organization, member management, firebase">
-    <meta name="author" content="Universal Contribution Manager Team">
-    
-    <title>Universal Contribution Manager</title>
-      <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    
-    <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- SweetAlert2 -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.min.css" rel="stylesheet">
-    
-    <!-- Application Styles -->
-    <link rel="stylesheet" href="src/styles/main.css">
-    <link rel="stylesheet" href="src/styles/components.css">    <link rel="stylesheet" href="src/styles/themes.css"><!-- Security headers for static deployment -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com https://www.googletagmanager.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Organization Manager - Redirect to Super Admin Login">
+  <title>Organization Manager</title>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Loading Universal Contribution Manager...</p>
-        </div>
-    </div>
-
-    <!-- Main Application Container -->
-    <div id="app" class="app-container" style="display: none;">
-        <!-- Navigation will be dynamically loaded here -->
-        <nav id="navigation"></nav>
-        
-        <!-- Main Content Area -->
-        <main id="main-content" class="main-content">
-            <!-- Page content will be dynamically loaded here -->
-        </main>
-        
-        <!-- Footer -->
-        <footer id="footer" class="app-footer">
-            <!-- Footer content will be dynamically loaded here -->
-        </footer>
-    </div>
-
-    <!-- Error Boundary -->
-    <div id="error-boundary" class="error-boundary" style="display: none;">
-        <div class="error-content">
-            <h1>🚨 Application Error</h1>
-            <p>Something went wrong. Please try refreshing the page.</p>
-            <button id="refresh-button" onclick="window.location.reload()">Refresh Page</button>
-        </div>
-    </div>
-
-    <!-- Toast Notifications Container -->
-    <div id="toast-container" class="toast-container"></div>    <!-- Modal Container -->
-    <div id="modal-container" class="modal-container"></div>
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"></script>
-
-    <!-- Application Scripts -->
-    <script type="module" src="src/main.js"></script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-        // Register service worker for offline functionality
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-    </script>
+  <!-- Redirect to super admin -->
+  <script>
+    window.location.href = 'pages/superadmin/login.html';
+  </script>
 </body>
 </html>

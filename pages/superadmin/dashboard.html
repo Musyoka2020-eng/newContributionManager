@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Dashboard - Contribution Manager</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-content">
+        <h1>🏢 Organization Management</h1>
+        <button class="btn-secondary" data-action="logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="container">
+        <!-- Create Organization Section -->
+        <section class="section">
+          <h2>Create New Organization</h2>
+          
+          <div class="error" data-error></div>
+          <div class="success" data-success></div>
+
+          <form id="createOrgForm" class="form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="orgName">Organization Name *</label>
+                <input type="text" id="orgName" name="orgName" required placeholder="Church of Grace">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="adminEmail">Admin Email *</label>
+                <input type="email" id="adminEmail" name="adminEmail" required placeholder="admin@example.com">
+              </div>
+
+              <div class="form-group">
+                <label for="adminPassword">Admin Password *</label>
+                <input type="password" id="adminPassword" name="adminPassword" required placeholder="••••••••">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firebaseConfig">Firebase Config (JSON) *</label>
+                <textarea id="firebaseConfig" name="firebaseConfig" required placeholder='{&#10;  "apiKey": "...",&#10;  "authDomain": "...",&#10;  "projectId": "...",&#10;  ...&#10;}' rows="6"></textarea>
+                <small>Paste the complete Firebase config from Firebase Console</small>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Organization</button>
+          </form>
+        </section>
+
+        <!-- Organizations List Section -->
+        <section class="section">
+          <h2>Organizations</h2>
+
+          <div class="loading" data-section="orgs-loading">
+            <div class="spinner"></div>
+            <p>Loading organizations...</p>
+          </div>
+
+          <div id="organizationsList" class="organizations-grid" data-section="orgs-list">
+            <!-- Organizations will be loaded here -->
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+
+  <!-- Services -->
+  <script src="/js/services/org-manager.js"></script>
+  <script src="/js/services/auth-service.js"></script>
+  <script src="/js/services/super-admin-service.js"></script>
+
+  <!-- Central Config -->
+  <script src="/config-central.js"></script>
+  <script src="/js/core/superadmin-router.js"></script>
+  <script src="/js/pages/superadmin-dashboard.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const { auth, database } = initializeCentralFirebase();
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+        await superAdminRouter.initialize(auth, database);
+        superAdminDashboard.init(auth, database, superAdminRouter);
+      } catch (error) {
+        console.error('Initialization error:', error);
+        const errorDiv = document.querySelector('[data-error]');
+        if (errorDiv) {
+          errorDiv.textContent = 'Failed to initialize: ' + error.message;
+          errorDiv.classList.add('show');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

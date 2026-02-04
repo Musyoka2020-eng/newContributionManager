@@ -1,0 +1,277 @@
+// Utility Functions Module
+// Common helper functions used throughout the application
+
+const Utils = (function() {
+    return {
+        // Sanitize HTML to prevent XSS
+        sanitizeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        },
+
+        // Validate name input
+        validateName(name) {
+            const trimmedName = String(name).trim();
+            if (!trimmedName || trimmedName.length < 2 || trimmedName.length > 50) {
+                return { valid: false, error: 'Name must be between 2 and 50 characters' };
+            }
+            return { valid: true };
+        },
+
+        // Validate amount input
+        validateAmount(amountStr) {
+            if (!amountStr || !/^\d+$/.test(amountStr)) {
+                return { valid: false, error: 'Please enter a valid number for amount' };
+            }
+
+            const amount = parseInt(amountStr);
+            if (amount <= 0 || amount > 1000000) {
+                return { valid: false, error: 'Amount must be between 1 and 1,000,000' };
+            }
+
+            return { valid: true, amount };
+        },
+
+        // Export data to JSON files
+        exportData(blacklistData, contributionsData, currentYear) {
+            try {
+                const blacklistBlob = new Blob([JSON.stringify(blacklistData, null, 2)], {
+                    type: 'application/json'
+                });
+
+                const yearBlob = new Blob([JSON.stringify(contributionsData[currentYear], null, 2)], {
+                    type: 'application/json'
+                });
+
+                const blacklistURL = URL.createObjectURL(blacklistBlob);
+                const yearURL = URL.createObjectURL(yearBlob);
+
+                const blacklistLink = document.createElement('a');
+                blacklistLink.href = blacklistURL;
+                blacklistLink.download = 'blacklist.json';
+                blacklistLink.click();
+
+                const yearLink = document.createElement('a');
+                yearLink.href = yearURL;
+                yearLink.download = `${currentYear}.json`;
+                yearLink.click();
+
+                URL.revokeObjectURL(blacklistURL);
+                URL.revokeObjectURL(yearURL);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Export Complete',
+                    text: 'Your data files have been downloaded.'
+                });
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Export Error',
+                    text: 'Failed to export data files.'
+                });
+            }
+        },
+
+        // Save phone number to localStorage
+        savePhoneNumber(phoneNumber) {
+            if (!phoneNumber) {
+                return { success: false, error: 'Please enter a valid phone number' };
+            }
+
+            localStorage.setItem('phoneNumber', phoneNumber);
+            return { success: true };
+        },
+
+        // Get phone number from localStorage
+        getPhoneNumber() {
+            return localStorage.getItem('phoneNumber') || '';
+        },
+
+        // Save current view to localStorage
+        saveCurrentView(view) {
+            try {
+                localStorage.setItem('currentView', view);
+            } catch (error) {
+                console.error('Error saving current view:', error);
+            }
+        },
+
+        // Get saved view from localStorage
+        getSavedView() {
+            try {
+                return localStorage.getItem('currentView') || 'monthly';
+            } catch (error) {
+                console.error('Error getting saved view:', error);
+                return 'monthly';
+            }
+        },
+
+        // Update sync status display
+        updateSyncStatus(lastSyncTime) {
+            const dbStatus = document.getElementById('db-status');
+            const lastSync = document.getElementById('last-synced');
+
+            if (dbStatus) {
+                dbStatus.textContent = 'Firebase Realtime Database';
+            }
+
+            if (lastSync && lastSyncTime) {
+                lastSync.textContent = moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss');
+            } else if (lastSync) {
+                lastSync.textContent = 'Never';
+            }
+        },
+
+        // Populate year select dropdown - dynamically from contributions data
+        populateYearSelect(yearSelect, currentYear, contributionsData = null) {
+            yearSelect.innerHTML = '';
+            
+            let years = [];
+            
+            // If contributions data provided, get years from it
+            if (contributionsData) {
+                years = this.getAvailableYears(contributionsData);
+            } else {
+                // Fallback to hardcoded range if no data provided
+                const thisYear = parseInt(moment().format('YYYY'));
+                for (let year = thisYear - 2; year <= thisYear + 2; year++) {
+                    years.push(year);
+                }
+                years.sort((a, b) => b - a); // Descending
+            }
+
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year.toString();
+                option.textContent = year.toString();
+
+                if (year === parseInt(currentYear)) {
+                    option.selected = true;
+                }
+
+                yearSelect.appendChild(option);
+            });
+        },
+
+        // Populate month select dropdown
+        populateMonthSelect(monthSelect, currentMonth) {
+            monthSelect.innerHTML = '';
+            const months = moment.months();
+
+            for (const month of months) {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month;
+
+                if (month === currentMonth) {
+                    option.selected = true;
+                }
+
+                monthSelect.appendChild(option);
+            }
+        },
+
+        // Format WhatsApp message for monthly report
+        formatMonthlyWhatsAppMessage(currentMonth, currentYear, monthData) {
+            const paidTotal = monthData.contributions.filter(item => item.paid)
+                .reduce((sum, item) => sum + item.amount, 0);
+            const unpaidTotal = monthData.contributions.filter(item => !item.paid)
+                .reduce((sum, item) => sum + item.amount, 0);
+
+            let message = `*${currentMonth} ${currentYear} - CONTRIBUTION REPORT*\n`;
+            message += "------------------------------------------\n\n";
+
+            monthData.contributions.forEach((item, index) => {
+                message += `${index + 1}. *${item.name}* - ${item.amount.toLocaleString()}/= ${item.paid ? '✅' : '❌'}\n`;
+            });
+
+            message += "\n------------------------------------------";
+            message += "\n*SUMMARY:*";
+            message += `\n▪️ Total Expected: ${monthData.total.toLocaleString()}/=`;
+            message += `\n▪️ Total Paid: ${paidTotal.toLocaleString()}/=`;
+            message += `\n▪️ Total Unpaid: ${unpaidTotal.toLocaleString()}/=`;
+            message += "\n------------------------------------------";
+            message += "\n\n_Generated from Contribution Manager_";
+
+            return message;
+        },
+
+        // Format WhatsApp message for yearly report
+        formatYearlyWhatsAppMessage(currentYear, contributionsData) {
+            const months = moment.months();
+            let yearlyTotalAmount = 0;
+            let yearlyPaidAmount = 0;
+            let yearlyUnpaidAmount = 0;
+
+            let message = `*${currentYear} YEARLY CONTRIBUTION REPORT*\n`;
+            message += "------------------------------------------\n\n";
+
+            for (const month of months) {
+                if (contributionsData[currentYear]?.[month]) {
+                    const monthData = contributionsData[currentYear][month];
+
+                    const paidAmount = monthData.contributions.filter(item => item.paid)
+                        .reduce((sum, item) => sum + item.amount, 0);
+                    const unpaidAmount = monthData.contributions.filter(item => !item.paid)
+                        .reduce((sum, item) => sum + item.amount, 0);
+
+                    message += `*${month}:*\n`;
+                    message += `▪️ Total: ${monthData.total.toLocaleString()}/=\n`;
+                    message += `▪️ Paid: ${paidAmount.toLocaleString()}/=\n`;
+                    message += `▪️ Unpaid: ${unpaidAmount.toLocaleString()}/=\n\n`;
+
+                    yearlyTotalAmount += monthData.total;
+                    yearlyPaidAmount += paidAmount;
+                    yearlyUnpaidAmount += unpaidAmount;
+                }
+            }
+
+            message += "------------------------------------------";
+            message += "\n*YEARLY SUMMARY:*";
+            message += `\n▪️ Total Expected: ${yearlyTotalAmount.toLocaleString()}/=`;
+            message += `\n▪️ Total Paid: ${yearlyPaidAmount.toLocaleString()}/=`;
+            message += `\n▪️ Total Unpaid: ${yearlyUnpaidAmount.toLocaleString()}/=`;
+            message += "\n------------------------------------------";
+            message += "\n\n_Generated from Contribution Manager_";
+
+            return message;
+        },
+
+        // Get available years from contributions data
+        getAvailableYears(contributionsData) {
+            const years = Object.keys(contributionsData || {})
+                .filter(key => /^\d{4}$/.test(key))
+                .map(year => parseInt(year))
+                .sort((a, b) => b - a); // Descending order
+            return years;
+        },
+
+        // Populate year selector with dynamic years
+        populateYearSelector(selectElement, contributionsData, defaultYear = null) {
+            const years = this.getAvailableYears(contributionsData);
+            
+            if (years.length === 0) {
+                console.warn('No years found in contributions data');
+                return;
+            }
+
+            selectElement.innerHTML = '';
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year.toString();
+                option.textContent = year.toString();
+                
+                // Set default to current year or provided year
+                const selectedYear = defaultYear || parseInt(moment().format('YYYY'));
+                if (year === selectedYear) {
+                    option.selected = true;
+                }
+                
+                selectElement.appendChild(option);
+            });
+        }
+    };
+})();

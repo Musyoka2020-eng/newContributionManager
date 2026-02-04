@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contribution Manager</title>
+    <!-- External CDN Links -->
+    <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com https://*.firebaseio.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.firebaseio.com https://contribution-manager-8fe43-default-rtdb.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self';">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css">
+    
+    <!-- Modular CSS Files -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/reports.css">
+    <link rel="stylesheet" href="css/budget.css">
+    <link rel="stylesheet" href="css/special-giving.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Theme Manager - Load early to prevent theme flash -->
+    <script src="js/theme-manager.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+        </button>
+
+        <!-- Header Component -->
+        <header>
+            <h1><i class="fas fa-wallet"></i> Contribution Manager</h1>
+            <p class="subtitle">Manage your group contributions with ease</p>
+        </header>
+
+        <!-- Loading Spinner - shown while Firebase is initializing -->
+        <div id="initial-loading-spinner" class="initial-loading-spinner">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <p>Loading Contribution Manager...</p>
+            </div>
+        </div>
+
+        <!-- Auth Section - Will be populated by auth.js -->
+        <section class="auth-section"></section>
+
+        <!-- Main content - initially hidden until authenticated -->
+        <main style="display: none;">
+            <!-- Tab Navigation -->
+            <nav class="tab-navigation">
+                <button class="tab-btn active" data-view="monthly">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>Monthly</span>
+                </button>
+                <button class="tab-btn" data-view="yearly">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Yearly</span>
+                </button>
+                <button class="tab-btn" data-view="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </button>
+                <button class="tab-btn" data-view="budget">
+                    <i class="fas fa-wallet"></i>
+                    <span>Budget</span>
+                </button>
+                <button class="tab-btn" data-view="special-giving">
+                    <i class="fas fa-heart"></i>
+                    <span>Special Giving</span>
+                </button>
+                <button class="tab-btn" data-view="blacklist">
+                    <i class="fas fa-user-slash"></i>
+                    <span>Blacklist</span>
+                </button>
+                <button class="tab-btn" data-view="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <!-- Monthly View Content -->
+            <div id="monthly-view" class="tab-content active">
+                <!-- Compact Action Bar -->
+                <div class="action-bar">
+                    <button id="add-contribution-btn" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Add Contribution
+                    </button>
+                </div>
+
+                <!-- Contributions Section with Filters -->
+                <section class="contributions">
+                    <!-- Period Selectors (moved here as table filters) -->
+                    <div class="table-filters">
+                        <div class="filter-group">
+                            <label for="year-select"><i class="far fa-calendar"></i> Year:</label>
+                            <select id="year-select"></select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="month-select"><i class="far fa-calendar-alt"></i> Month:</label>
+                            <select id="month-select"></select>
+                        </div>
+                        <button id="create-month-btn" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> New Month
+                        </button>
+                    </div>
+
+                    <h2>
+                        <i class="fas fa-list"></i> 
+                        Contributions for <span id="current-month-display">January</span> <span id="current-year-display">2025</span>
+                    </h2>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table id="contributions-table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Name</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contributions-list"></tbody>
+                            </table>
+                        </div>
+                        <div class="total-section">
+                            <div class="total-item paid">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Total Paid:</span>
+                                <strong id="total-amount-paid">0</strong>
+                            </div>
+                            <div class="total-item unpaid">
+                                <i class="fas fa-times-circle"></i>
+                                <span>Total Unpaid:</span>
+                                <strong id="total-amount-unpaid">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Yearly View Content -->
+            <div id="yearly-view" class="tab-content">
+                <section class="contributions">
+                    <h2><i class="fas fa-calendar-alt"></i> Yearly Summary for <span id="yearly-display">2025</span></h2>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table id="yearly-table">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Total</th>
+                                        <th>Paid</th>
+                                        <th>Unpaid</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="yearly-list"></tbody>
+                            </table>
+                        </div>
+                        <div class="total-section">
+                            <div class="total-item yearly">
+                                <i class="fas fa-coins"></i>
+                                <span>Yearly Total:</span>
+                                <strong id="yearly-total">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Reports View Content -->
+            <div id="reports-view" class="tab-content">
+                <section class="contributions">
+                    <h2><i class="fas fa-chart-bar"></i> Generate Reports</h2>
+                    <div class="card">
+                        <div class="report-filters">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="report-type">Report Type</label>
+                                    <select id="report-type">
+                                        <option value="individual">Individual Member</option>
+                                        <option value="all-members">All Members Status</option>
+                                        <option value="expected-members">Expected Members List</option>
+                                        <option value="month-range">Month Range Summary</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group" id="member-select-group">
+                                    <label for="report-member">Member</label>
+                                    <select id="report-member">
+                                        <option value="">-- Select Member --</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" id="status-filter-group" style="display: none;">
+                                    <label for="status-filter">Status Filter</label>
+                                    <select id="status-filter">
+                                        <option value="all">All Months</option>
+                                        <option value="paid">Paid Only</option>
+                                        <option value="unpaid">Unpaid Only</option>
+                                        <option value="no-record">No Record Only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="report-start-month">Start Month</label>
+                                    <select id="report-start-month"></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="report-start-year">Start Year</label>
+                                    <select id="report-start-year"></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="report-end-month">End Month</label>
+                                    <select id="report-end-month"></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="report-end-year">End Year</label>
+                                    <select id="report-end-year"></select>
+                                </div>
+
+                                <div class="form-group">
+                                    <button id="generate-report-btn" class="btn btn-primary">
+                                        <i class="fas fa-file-alt"></i> Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="report-output" class="report-output">
+                            <div class="report-header">
+                                <h3 id="report-title">Report</h3>
+                                <div class="report-actions">
+                                    <button id="column-selector-btn" class="btn btn-small" style="display: none;">
+                                        <i class="fas fa-columns"></i> Columns
+                                    </button>
+                                    <button id="export-report-text" class="btn btn-small">
+                                        <i class="fas fa-file-text"></i> Export
+                                    </button>
+                                    <button id="print-report" class="btn btn-small">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
+                                    <button id="share-report-whatsapp" class="btn btn-small btn-success">
+                                        <i class="fab fa-whatsapp"></i> Share
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Column Selection Modal -->
+                            <div id="column-selector" class="column-selector" style="display: none;">
+                                <div class="column-selector-content">
+                                    <h4><i class="fas fa-columns"></i> Select Columns to Display</h4>
+                                    <div id="column-checkboxes"></div>
+                                    <div class="column-selector-actions">
+                                        <button class="btn btn-small" id="apply-columns">Apply</button>
+                                        <button class="btn btn-small btn-secondary" id="cancel-columns">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="report-content" class="report-content"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Budget View Content -->
+            <div id="budget-view" class="tab-content">
+                <section class="contributions">
+                    <div id="budget-content"></div>
+                </section>
+            </div>
+
+            <!-- Special Giving View Content -->
+            <div id="special-giving-view" class="tab-content">
+                <section class="contributions">
+                    <div class="action-bar">
+                        <button id="create-campaign-btn" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Create Campaign
+                        </button>
+                    </div>
+                    <div id="special-giving-content"></div>
+                </section>
+            </div>
+
+            <!-- Blacklist View Content -->
+            <div id="blacklist-view" class="tab-content">
+                <section class="contributions">
+                    <h2><i class="fas fa-user-slash"></i> Blacklisted Members</h2>
+                    <div class="card">
+                        <div class="add-blacklist">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="blacklist-name">Member Name</label>
+                                    <input type="text" id="blacklist-name" placeholder="Enter member name">
+                                </div>
+                                <div class="form-group">
+                                    <button id="add-to-blacklist" class="btn btn-danger">
+                                        <i class="fas fa-ban"></i> Add to Blacklist
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="blacklist-table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blacklist-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Settings View Content -->
+            <div id="settings-view" class="tab-content">
+                <section class="contributions">
+                    <h2><i class="fas fa-cog"></i> Settings</h2>
+                    
+                    <div class="card">
+                        <h3><i class="fas fa-database"></i> Database Status</h3>
+                        <div class="sync-info">
+                            <div class="info-row">
+                                <span class="info-label">Database Type:</span>
+                                <span id="db-status" class="info-value">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Last Synced:</span>
+                                <span id="last-synced" class="info-value">Never</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-users-cog"></i> Expected Members List</h3>
+                        <p style="color: #666; margin-bottom: 1rem;">
+                            Manage the list of members expected to contribute. This is used for the "Expected Members List" report.
+                        </p>
+                        <div class="add-expected-member">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expected-member-name">Member Name</label>
+                                    <input type="text" id="expected-member-name" placeholder="Enter member name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="expected-member-amount">Expected Amount</label>
+                                    <input type="number" id="expected-member-amount" placeholder="e.g., 1000" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <button id="add-expected-member" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add Member
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="expected-members-table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Name</th>
+                                        <th>Expected Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expected-members-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fab fa-whatsapp"></i> WhatsApp Settings</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone-number">Your Phone Number</label>
+                                <input type="text" id="phone-number" placeholder="+1234567890">
+                            </div>
+                            <div class="form-group">
+                                <button id="save-phone" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-share-alt"></i> Quick Actions</h3>
+                        <div class="button-group">
+                            <button id="send-whatsapp" class="btn btn-success">
+                                <i class="fab fa-whatsapp"></i> Share Current Report
+                            </button>
+                            <button id="export-data" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i> Sync Data
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer>
+            <p>
+                <i class="fas fa-copyright"></i> <span id="current-year-footer"></span> Contribution Manager
+                <span class="footer-separator">|</span>
+                <span class="version">v2.1.0</span>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Add Contribution Modal -->
+    <div id="contribution-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Add Contribution</h3>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="contribution-form" class="contribution-form">
+                    <div class="form-group">
+                        <label for="member-name">Member Name</label>
+                        <input type="text" id="member-name" placeholder="Enter member name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contribution-amount">Amount</label>
+                        <input type="number" id="contribution-amount" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="contribution-paid" checked>
+                            <span>Mark as Paid</span>
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Add Contribution
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- Theme Manager (load first to prevent flash) -->
+    <script src="js/theme-manager.js"></script>
+
+    <!-- Application Modules (order matters!) -->
+    <script src="js/utils.js"></script>
+    <script src="js/dom-manager.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/firebase-manager.js"></script>
+    <script src="js/contributions.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/expected-members.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/special-giving-manager.js"></script>
+    <script src="js/auth.js"></script>
+    <!-- Modular architecture -->
+    <script src="js/modal-manager.js"></script>
+    <script src="js/ui-renderer.js"></script>
+    <script src="js/campaign-export-manager.js"></script>
+    <script src="js/event-handlers.js"></script>
+    <script src="js/view-manager.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

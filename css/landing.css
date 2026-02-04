@@ -1,0 +1,72 @@
+/* Landing page specific styles */
+
+.landing-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+}
+
+.landing-card {
+  background: var(--bg-primary);
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 100%;
+}
+
+.landing-card h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.landing-card p {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.nav-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-buttons button {
+  width: 100%;
+}
+
+.status-message {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.admin-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.admin-section button {
+  width: 100%;
+  background: var(--accent-secondary);
+}
+
+.admin-section button:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+  .landing-card {
+    padding: 24px;
+  }
+
+  .landing-card h1 {
+    font-size: 24px;
+  }
+}

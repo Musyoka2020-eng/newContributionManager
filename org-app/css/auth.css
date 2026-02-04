@@ -1,0 +1,147 @@
+/* Authentication and Admin Dashboard Styles */
+
+/* Authentication Section */
+.auth-section {
+    margin-bottom: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 20px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+}
+
+.user-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.user-details i {
+    font-size: 24px;
+    color: var(--primary-color);
+}
+
+.user-email {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.user-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.user-actions .btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+#login-form, #signup-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background-color: var(--accent-blue);
+}
+
+.btn-secondary:hover {
+    background-color: #5a7fd4;
+}
+
+/* Admin Dashboard */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.admin-table th, .admin-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.role-select {
+    padding: 5px;
+    width: 100%;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.save-role {
+    padding: 5px 10px !important;
+    font-size: 14px !important;
+}
+
+/* Edit Form */
+.edit-form-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.edit-form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    align-items: center;
+}
+
+.edit-form-group label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding-right: 10px;
+}
+
+.edit-form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.edit-form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
