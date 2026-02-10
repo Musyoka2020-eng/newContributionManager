@@ -1,19 +1,18 @@
 /**
  * Central Firebase Configuration
  * 
- * This is the central database used for:
+ * This is the central Firestore database used for:
  * - Organization metadata
  * - User authentication and profiles
  * - User-organization memberships
  * - Super admin operations
  * 
- * Each organization also has its own isolated database
+ * Each organization also has its own isolated Realtime Database
  */
 
-export const CENTRAL_FIREBASE_CONFIG = {
+const CENTRAL_FIREBASE_CONFIG = {
   apiKey: "AIzaSyDvVQyobB0zidbVp59XzuE5Tatb0M1xPGg",
   authDomain: "universal-contribution-manager.firebaseapp.com",
-  databaseURL: "https://universal-contribution-manager-default-rtdb.firebaseio.com",
   projectId: "universal-contribution-manager",
   storageBucket: "universal-contribution-manager.firebasestorage.app",
   messagingSenderId: "10877815438",
@@ -23,23 +22,27 @@ export const CENTRAL_FIREBASE_CONFIG = {
 
 // Central Firebase initialization
 let centralApp = null;
-let centralDatabase = null;
+let centralFirestore = null;
 let centralAuth = null;
 
-export function initializeCentralFirebase() {
+function initializeCentralFirebase() {
   try {
     if (typeof firebase === 'undefined') {
       throw new Error('Firebase SDK not loaded');
     }
 
     centralApp = firebase.initializeApp(CENTRAL_FIREBASE_CONFIG);
-    centralDatabase = firebase.database(centralApp);
-    centralAuth = firebase.auth(centralApp);
+    centralFirestore = firebase.firestore(centralApp);
+    
+    // Auth initialization is optional - only initialize if available
+    if (typeof firebase.auth === 'function') {
+      centralAuth = firebase.auth(centralApp);
+    }
 
-    console.log('Central Firebase initialized');
+    console.log('Central Firebase (Firestore) initialized');
     return {
       app: centralApp,
-      database: centralDatabase,
+      db: centralFirestore,
       auth: centralAuth
     };
   } catch (error) {
@@ -48,14 +51,14 @@ export function initializeCentralFirebase() {
   }
 }
 
-export function getCentralDatabase() {
-  return centralDatabase;
+function getCentralFirestore() {
+  return centralFirestore;
 }
 
-export function getCentralAuth() {
+function getCentralAuth() {
   return centralAuth;
 }
 
-export function getCentralApp() {
+function getCentralApp() {
   return centralApp;
 }

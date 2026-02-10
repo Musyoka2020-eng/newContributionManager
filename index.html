@@ -1,15 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Organization Manager - Redirect to Super Admin Login">
-  <title>Organization Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContriFlow - Manage Group Contributions</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/home.css">
 </head>
 <body>
-  <!-- Redirect to super admin -->
-  <script>
-    window.location.href = 'pages/superadmin/login.html';
-  </script>
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <img src="/assets/logo.svg" alt="ContriFlow" class="logo-image">
+                <span>ContriFlow</span>
+            </a>
+            <nav class="header-nav">
+                <a href="/pages/organizations.html" class="btn-browse">
+                    <i class="fas fa-list"></i>
+                    Browse Organizations
+                </a>
+                <a href="/pages/superadmin/login.html" class="btn-admin">
+                    <i class="fas fa-lock"></i>
+                    Admin
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-icon">
+                <img src="/assets/logo.svg" alt="ContriFlow" class="hero-logo">
+            </div>
+            <h1>ContriFlow</h1>
+            <p>Smart contribution management for groups. Track, manage, and report on group contributions effortlessly. Perfect for churches, clubs, organizations, and community groups.</p>
+            <div class="hero-cta">
+                <a href="/pages/organizations.html" class="btn-primary">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Your Organization
+                </a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Track Contributions</h3>
+                <p>Easily record and monitor contributions from members with detailed records and history.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h3>Generate Reports</h3>
+                <p>Create comprehensive reports to analyze contribution patterns and financial summaries.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Secure Data</h3>
+                <p>Your data is protected with enterprise-grade security and encrypted connections.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Team Management</h3>
+                <p>Manage member lists and assign roles for better organization and control.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Responsive Design</h3>
+                <p>Access your data on any device - desktop, tablet, or mobile phone.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <h3>Share & Export</h3>
+                <p>Export data and share reports via WhatsApp or download as files.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ContriFlow. All rights reserved.</p>
+    </footer>
 </body>
 </html>

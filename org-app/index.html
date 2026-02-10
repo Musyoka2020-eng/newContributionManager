@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contribution Manager</title>
+    <title>ContriFlow - Organization Management</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
     <!-- External CDN Links -->
     <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com https://*.firebaseio.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.firebaseio.com https://contribution-manager-8fe43-default-rtdb.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self';">
@@ -28,23 +29,21 @@
 </head>
 
 <body>
+    <a href="/" class="home-link" title="Return to Home">
+        <i class="fas fa-home"></i>
+    </a>
+
     <div class="container">
         <!-- Theme Toggle Button -->
         <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
             <i class="fas fa-moon"></i>
         </button>
 
-        <!-- Header Component -->
-        <header>
-            <h1><i class="fas fa-wallet"></i> Contribution Manager</h1>
-            <p class="subtitle">Manage your group contributions with ease</p>
-        </header>
-
         <!-- Loading Spinner - shown while Firebase is initializing -->
         <div id="initial-loading-spinner" class="initial-loading-spinner">
             <div class="spinner-container">
                 <div class="spinner"></div>
-                <p>Loading Contribution Manager...</p>
+                <p>Initializing ContriFlow...</p>
             </div>
         </div>
 
@@ -417,7 +416,7 @@
 
         <footer>
             <p>
-                <i class="fas fa-copyright"></i> <span id="current-year-footer"></span> Contribution Manager
+                <i class="fas fa-copyright"></i> <span id="current-year-footer"></span> ContriFlow
                 <span class="footer-separator">|</span>
                 <span class="version">v2.1.0</span>
             </p>

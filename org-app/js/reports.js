@@ -1,6 +1,19 @@
 // Reports Manager Module
 // Handles all report generation, display, and export functionality
 
+// Show toast notification
+function showToast(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
 const ReportsManager = (function() {
     let currentReportData = null;
 
@@ -101,11 +114,7 @@ const ReportsManager = (function() {
                 }
             } catch (error) {
                 console.error('Error generating report:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Report Generation Error',
-                    text: error.message || 'Failed to generate report'
-                });
+                showToast('error', 'Report Generation Error', error.message || 'Failed to generate report');
                 return null;
             }
         },
@@ -853,11 +862,7 @@ const ReportsManager = (function() {
         // Export report as text
         exportReportAsText() {
             if (!currentReportData) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Report',
-                    text: 'Please generate a report first'
-                });
+                showToast('warning', 'No Report', 'Please generate a report first');
                 return;
             }
 
@@ -889,13 +894,7 @@ const ReportsManager = (function() {
             link.click();
             URL.revokeObjectURL(url);
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Report Exported',
-                text: 'Report has been downloaded as text file',
-                timer: 2000,
-                showConfirmButton: false
-            });
+            showToast('success', 'Report Exported', 'Report has been downloaded as text file');
         },
 
         // Generate text versions of reports
@@ -1016,11 +1015,7 @@ const ReportsManager = (function() {
         // Print report
         printReportContent(reportContent) {
             if (!currentReportData) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Report',
-                    text: 'Please generate a report first'
-                });
+                showToast('warning', 'No Report', 'Please generate a report first');
                 return;
             }
 
@@ -1060,20 +1055,12 @@ const ReportsManager = (function() {
         // Share report via WhatsApp
         shareReportViaWhatsapp(phoneNumber) {
             if (!currentReportData) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Report',
-                    text: 'Please generate a report first'
-                });
+                showToast('warning', 'No Report', 'Please generate a report first');
                 return;
             }
 
             if (!phoneNumber) {
-                Swal.fire({
-                    title: 'No Phone Number',
-                    text: 'Please save your phone number in the settings first',
-                    icon: 'warning'
-                });
+                showToast('warning', 'No Phone Number', 'Please save your phone number in the settings first');
                 return;
             }
 

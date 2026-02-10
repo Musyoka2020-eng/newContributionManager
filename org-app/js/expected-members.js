@@ -1,6 +1,19 @@
 // Expected Members Manager Module
 // Handles CRUD operations for the expected members list
 
+// Show toast notification
+function showToast(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
 const ExpectedMembersManager = (function() {
     const STORAGE_KEY = 'expectedMembers';
 
@@ -23,11 +36,7 @@ const ExpectedMembersManager = (function() {
                 return true;
             } catch (error) {
                 console.error('Error saving expected members:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Save Failed',
-                    text: 'Could not save expected members list'
-                });
+                showToast('error', 'Save Failed', 'Could not save expected members list');
                 return false;
             }
         },
@@ -35,20 +44,12 @@ const ExpectedMembersManager = (function() {
         // Add a new expected member
         addExpectedMember(memberName, monthlyAmount) {
             if (!memberName || !memberName.trim()) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Name',
-                    text: 'Please enter a member name'
-                });
+                showToast('warning', 'Invalid Name', 'Please enter a member name');
                 return false;
             }
 
             if (!monthlyAmount || monthlyAmount <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Amount',
-                    text: 'Please enter a valid expected monthly amount'
-                });
+                showToast('warning', 'Invalid Amount', 'Please enter a valid expected monthly amount');
                 return false;
             }
 
@@ -57,11 +58,7 @@ const ExpectedMembersManager = (function() {
 
             // Check for duplicates
             if (members.find(m => m.name === trimmedName)) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Duplicate Member',
-                    text: 'This member is already in the expected list'
-                });
+                showToast('warning', 'Duplicate Member', 'This member is already in the expected list');
                 return false;
             }
 
@@ -71,13 +68,7 @@ const ExpectedMembersManager = (function() {
             });
             
             if (this.saveExpectedMembers(members)) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Member Added',
-                    text: `${trimmedName} has been added with ${monthlyAmount}/= per month`,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                showToast('success', 'Member Added', `${trimmedName} has been added with ${monthlyAmount}/= per month`);
                 return true;
             }
             return false;
@@ -91,13 +82,7 @@ const ExpectedMembersManager = (function() {
             if (index > -1) {
                 members.splice(index, 1);
                 if (this.saveExpectedMembers(members)) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Member Removed',
-                        text: `${memberName} has been removed from the expected list`,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
+                    showToast('success', 'Member Removed', `${memberName} has been removed from the expected list`);
                     return true;
                 }
             }

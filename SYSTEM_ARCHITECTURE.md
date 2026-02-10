@@ -197,9 +197,6 @@ newContributionManager/
 │   │   ├── auth-service.js           # Universal auth
 │   │   └── super-admin-service.js    # Create/manage orgs
 │   │
-│   ├── adapters/
-│   │   └── organization-adapter.js   # Injects org config & loads org-app
-│   │
 │   └── pages/
 │       ├── superadmin-login.js       # Login logic
 │       └── superadmin-dashboard.js   # Dashboard logic
@@ -245,36 +242,47 @@ Result: Organization metadata (including Firebase config) saved in central DB
 
 ---
 
-### **Step 2: Organization Router Loads Organization**
+### **Step 2: Organization Setup Page** 
 
-**File:** `js/core/organization-router.js`
+**File:** `pages/organization.html`
 
 ```javascript
-// Extract slug from URL: /organizations/myorg/
-const slug = extractOrgSlugFromURL();
+// Extract slug from URL: /pages/organization.html?slug=myorg
+const slug = params.get('slug');
 
-// Load org metadata from central DB (including its Firebase config)
-const org = await orgManager.loadOrganization(slug);
+// Load org metadata from central DB (including Firebase config)
+const orgDoc = await db.collection('organizations').doc(slug).get();
+const org = orgDoc.data();
 
-// Initialize adapter with org metadata
-await organizationAdapter.initializeOrganization(org, centralDatabase);
+// Store org context in sessionStorage for org-app to access
+sessionStorage.setItem('orgContext', JSON.stringify({
+  slug: org.slug,
+  name: org.name,
+  firebaseConfig: org.firebaseConfig
+}));
+
+// Redirect to org-app which runs as a complete app
+window.location.href = '/org-app/index.html';
 ```
 
 ---
 
-### **Step 3: Organization Adapter Injects Config**
+### **Step 3: Organization App Loads with Context**
 
-**File:** `js/adapters/organization-adapter.js`
+**File:** `org-app/js/app.js`
 
 ```javascript
-// Before loading org-app scripts, inject org's Firebase config globally
-injectFirebaseConfig(org.firebaseConfig, org) {
-  window.orgSlug = org.slug;
-  window.orgFirebaseConfig = org.firebaseConfig;  // Org's own Firebase credentials
+// Check sessionStorage for org context from organization.html
+const orgContextStr = sessionStorage.getItem('orgContext');
+if (orgContextStr) {
+    const orgContext = JSON.parse(orgContextStr);
+    window.orgFirebaseConfig = orgContext.firebaseConfig;  // Org's own Firebase credentials
+    window.orgSlug = orgContext.slug;
+    window.orgName = orgContext.name;
+} else {
+    // User accessed org-app directly - redirect to login
+    window.location.href = '/pages/superadmin/login.html';
 }
-
-// Load org-app scripts
-await loadOrganizationScripts();
 ```
 
 ---

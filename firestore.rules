@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow unauthenticated reads to check if setup is needed
+    // Authenticated creates/updates only
+    match /superadminUsers/{uid} {
+      allow read;
+      allow create: if request.auth.uid == uid;
+      allow update, delete: if request.auth.uid == uid;
+    }
+    
+    match /users/{uid} {
+      allow read: if request.auth.uid != null;
+      allow create: if request.auth.uid == uid;
+      allow update: if request.auth.uid == uid;
+    }
+    
+    match /userOrganizations/{uid}/{document=**} {
+      allow read: if request.auth.uid == uid;
+      allow write: if request.auth.uid == uid;
+    }
+    
+    match /organizations/{organization}/{document=**} {
+      allow read: if true;  // Unauthenticated access to org metadata (needed for bootstrap)
+      allow write: if request.auth.uid != null;  // Only authenticated users can modify
+    }
+    
+    // Default deny for anything not explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

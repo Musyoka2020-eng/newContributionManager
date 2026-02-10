@@ -3,96 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organization - Contribution Manager</title>
-  <link rel="stylesheet" href="/css/global.css">
-  <link rel="stylesheet" href="/css/organization.css">
+  <title>Loading Organization...</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    .loading-container {
+      text-align: center;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <!-- Placeholder for organization app -->
-  <div id="appContainer">
-    <div class="loading show">
-      <div class="spinner"></div>
-      <p>Loading organization...</p>
-    </div>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading organization...</p>
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
-
-  <!-- Services -->
-  <script src="/js/services/org-manager.js"></script>
-  <script src="/js/services/super-admin-service.js"></script>
-  <script src="/js/adapters/organization-adapter.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth-compat.js"></script>
 
   <!-- Central Config -->
   <script src="/config-central.js"></script>
-  <script src="/js/core/organization-router.js"></script>
-
-  <!-- Organization CSS -->
-  <link rel="stylesheet" href="/org-app/css/base.css">
-  <link rel="stylesheet" href="/org-app/css/auth.css">
-  <link rel="stylesheet" href="/org-app/css/forms.css">
-  <link rel="stylesheet" href="/org-app/css/tables.css">
-  <link rel="stylesheet" href="/org-app/css/modal.css">
-  <link rel="stylesheet" href="/org-app/css/reports.css">
-  <link rel="stylesheet" href="/org-app/css/responsive.css">
 
   <script>
+    // Timeout for loading (5 seconds)
+    const loadTimeout = setTimeout(() => {
+      document.body.innerHTML = `
+        <div class="loading-container">
+          <p style="color: red; margin-top: 20px;">
+            Failed to load organization: Request timed out
+          </p>
+          <p><a href="/pages/superadmin/dashboard.html" style="color: #3498db; text-decoration: none;">← Back to Dashboard</a></p>
+        </div>
+      `;
+    }, 5000);
+
     window.addEventListener('DOMContentLoaded', async () => {
       try {
-        const { auth, database } = initializeCentralFirebase();
-        window.firebaseAuth = auth;
-        window.firebaseDatabase = database;
-        
-        // Load organization HTML structure
-        await loadOrganizationStructure();
-        
-        // Initialize organization router
-        await organizationRouter.initialize(database);
+        // Initialize central Firebase (no auth required)
+        const { auth, db } = initializeCentralFirebase();
+
+        // Extract slug from URL
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+
+        if (!slug) {
+          throw new Error('No organization slug provided');
+        }
+
+        // Load organization metadata from central Firestore
+        // Firestore rules allow unauthenticated reads for org bootstrap
+        const orgDoc = await db.collection('organizations').doc(slug).get();
+        if (!orgDoc.exists) {
+          throw new Error(`Organization not found: ${slug}`);
+        }
+
+        const org = {
+          slug: orgDoc.id,
+          ...orgDoc.data()
+        };
+
+        // Store complete org context in sessionStorage for org-app
+        sessionStorage.setItem('orgContext', JSON.stringify({
+          slug: org.slug,
+          name: org.name,
+          firebaseConfig: org.firebaseConfig
+        }));
+
+        // Clear timeout and redirect to org-app/index.html
+        clearTimeout(loadTimeout);
+        window.location.href = '/org-app/index.html';
       } catch (error) {
+        clearTimeout(loadTimeout);
         console.error('Initialization error:', error);
-        document.querySelector('.loading').innerHTML = `
-          <p style="color: red;">Failed to load organization: ${error.message}</p>
+        document.body.innerHTML = `
+          <div class="loading-container">
+            <p style="color: red; margin-top: 20px;">
+              Failed to load organization: ${error.message}
+            </p>
+            <p><a href="/" style="color: #3498db; text-decoration: none;">← Home</a></p>
+          </div>
         `;
       }
     });
-
-    /**
-     * Load the HTML structure from org-app/index.html
-     * This fetches the body content and injects it into the appContainer
-     */
-    async function loadOrganizationStructure() {
-      try {
-        const response = await fetch('/org-app/index.html');
-        if (!response.ok) {
-          throw new Error(`Failed to load organization structure: ${response.statusText}`);
-        }
-        
-        const html = await response.text();
-        
-        // Parse the HTML to extract the body content
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Get the container div from org-app (should be the main content)
-        const containerDiv = doc.querySelector('.container');
-        if (!containerDiv) {
-          throw new Error('Organization structure missing container div');
-        }
-        
-        // Inject into appContainer
-        const appContainer = document.getElementById('appContainer');
-        appContainer.innerHTML = '';
-        appContainer.appendChild(containerDiv.cloneNode(true));
-        
-        console.log('Organization structure loaded successfully');
-      } catch (error) {
-        console.error('Failed to load organization structure:', error);
-        throw error;
-      }
-    }
   </script>
 </body>
 </html>

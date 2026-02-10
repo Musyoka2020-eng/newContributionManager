@@ -3,32 +3,40 @@
 /* Tab Navigation Container */
 .tab-navigation {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 5px;
     background: var(--bg-tertiary);
     padding: 10px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 24px;
-    overflow-x: auto;
-    overflow-y: hidden;
     border: 1px solid var(--border-light);
 }
 
-.tab-navigation::-webkit-scrollbar {
+.tab-navigation > div {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+}
+
+.tab-navigation > div::-webkit-scrollbar {
     height: 4px;
 }
 
-.tab-navigation::-webkit-scrollbar-track {
+.tab-navigation > div::-webkit-scrollbar-track {
     background: var(--bg-hover);
     border-radius: 10px;
 }
 
-.tab-navigation::-webkit-scrollbar-thumb {
+.tab-navigation > div::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 10px;
 }
 
-.tab-navigation::-webkit-scrollbar-thumb:hover {
+.tab-navigation > div::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
@@ -86,6 +94,12 @@
 
 .tab-btn.active i {
     animation: bounce 0.6s ease;
+}
+
+/* Back to App Button in Tab Navigation */
+.tab-navigation #back-to-app-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* Tab Content */

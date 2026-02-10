@@ -1,6 +1,19 @@
 // Utility Functions Module
 // Common helper functions used throughout the application
 
+// Show toast notification
+function showToast(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
 const Utils = (function() {
     return {
         // Sanitize HTML to prevent XSS
@@ -60,18 +73,10 @@ const Utils = (function() {
                 URL.revokeObjectURL(blacklistURL);
                 URL.revokeObjectURL(yearURL);
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Export Complete',
-                    text: 'Your data files have been downloaded.'
-                });
+                showToast('success', 'Export Complete', 'Your data files have been downloaded.');
             } catch (error) {
                 console.error('Error exporting data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Export Error',
-                    text: 'Failed to export data files.'
-                });
+                showToast('error', 'Export Error', 'Failed to export data files.');
             }
         },
 

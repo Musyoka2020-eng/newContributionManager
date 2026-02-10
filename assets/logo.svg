@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#667eea" opacity="0.1"/>
+  
+  <!-- Upward arrow -->
+  <g transform="translate(32, 32)">
+    <!-- Arrow shaft -->
+    <rect x="-3" y="-12" width="6" height="20" fill="#667eea" rx="2"/>
+    
+    <!-- Arrow head - left -->
+    <polygon points="0,-12 -8,-2 -4,-2" fill="#667eea"/>
+    
+    <!-- Arrow head - right -->
+    <polygon points="0,-12 8,-2 4,-2" fill="#667eea"/>
+    
+    <!-- Growth bars on left -->
+    <rect x="-18" y="2" width="4" height="8" fill="#667eea" opacity="0.7" rx="2"/>
+    <rect x="-10" y="-2" width="4" height="12" fill="#667eea" opacity="0.8" rx="2"/>
+    
+    <!-- Growth bars on right -->
+    <rect x="14" y="2" width="4" height="8" fill="#667eea" opacity="0.7" rx="2"/>
+    <rect x="6" y="-2" width="4" height="12" fill="#667eea" opacity="0.8" rx="2"/>
+  </g>
+</svg>

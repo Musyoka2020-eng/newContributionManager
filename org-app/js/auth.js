@@ -52,11 +52,7 @@ function initAuth(firebaseAuth, firebaseDatabase, authContainerSelector) {
                 } catch (error) {
                     console.error('Error setting up user data:', error);
                     logoutUser();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Authentication Error',
-                        text: 'Failed to load user data. Please try again.'
-                    });
+                    showToast('error', 'Authentication Error', 'Failed to load user data. Please try again.');
                 }
             } else {
                 // User is signed out
@@ -81,6 +77,12 @@ function setAuthStateChangedCallback(callback) {
 
 // Show login UI
 function showLoginUI() {
+    // Show the home link when not authenticated
+    const homeLink = document.querySelector('.home-link');
+    if (homeLink) {
+        homeLink.style.display = 'flex';
+    }
+
     // Hide the initial loading spinner when showing login UI
     const spinner = document.getElementById('initial-loading-spinner');
     if (spinner) {
@@ -94,62 +96,104 @@ function showLoginUI() {
 
     if (!authSection) return;
     
+    const orgName = window.orgName || 'Contribution Manager';
+    const orgInitial = orgName.charAt(0).toUpperCase();
+    
     authSection.innerHTML = `
-        <div class="card">
-            <h2>Login to Contribution Manager</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" required>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="org-logo">${orgInitial}</div>
+                    <h1>${sanitizeHTML(orgName)}</h1>
+                    <p class="auth-subtitle">Manage your group contributions with ease</p>
                 </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" required>
+
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab active" id="login-tab-btn" data-tab="login">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button type="button" class="auth-tab" id="signup-tab-btn" data-tab="signup">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn">Login</button>
-                    <button type="button" id="signup-toggle" class="btn btn-secondary">Create Account</button>
-                </div>
-            </form>
-            
-            <form id="signup-form" style="display: none;">
-                <h2>Create a New Account</h2>
-                <div class="form-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-confirm">Confirm Password</label>
-                    <input type="password" id="signup-confirm" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn">Create Account</button>
-                    <button type="button" id="login-toggle" class="btn btn-secondary">Return to Login</button>
-                </div>
-            </form>
+
+                <form id="login-form" class="auth-form active-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="signup-email" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signup-password" placeholder="Create a password (min. 6 characters)" required autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signup-confirm" placeholder="Confirm your password" required autocomplete="new-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+            </div>
         </div>
     `;
     
+    // Tab switching
+    document.getElementById('login-tab-btn').addEventListener('click', () => {
+        document.getElementById('login-form').classList.add('active-form');
+        document.getElementById('signup-form').classList.remove('active-form');
+        document.getElementById('login-tab-btn').classList.add('active');
+        document.getElementById('signup-tab-btn').classList.remove('active');
+    });
+    
+    document.getElementById('signup-tab-btn').addEventListener('click', () => {
+        document.getElementById('signup-form').classList.add('active-form');
+        document.getElementById('login-form').classList.remove('active-form');
+        document.getElementById('signup-tab-btn').classList.add('active');
+        document.getElementById('login-tab-btn').classList.remove('active');
+    });
+    
     document.getElementById('login-form').addEventListener('submit', handleLogin);
-    document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
-    
-    document.getElementById('signup-toggle').addEventListener('click', () => {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('signup-form').style.display = 'block';
-    });
-    
-    document.getElementById('login-toggle').addEventListener('click', () => {
-        document.getElementById('signup-form').style.display = 'none';
-        document.getElementById('login-form').style.display = 'block';
-    });
+    document.getElementById('signup-form').addEventListener('submit', handleSignup);
 }
 
 // Show authenticated UI
 function showAuthenticatedUI(user) {
+    // Hide the home link when user is authenticated
+    const homeLink = document.querySelector('.home-link');
+    if (homeLink) {
+        homeLink.style.display = 'none';
+    }
+
     // Hide the initial loading spinner when authenticated user is shown
     const spinner = document.getElementById('initial-loading-spinner');
     if (spinner) {
@@ -197,34 +241,28 @@ async function handleLogin(e) {
     const password = document.getElementById('login-password').value;
     
     if (!email || !password) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Login Error',
-            text: 'Please enter both email and password'
-        });
+        showToast('error', 'Login Error', 'Please enter both email and password');
         return;
     }
     
     try {
-        Swal.fire({
+        const loadingToast = Swal.fire({
             title: 'Logging In...',
             didOpen: () => {
                 Swal.showLoading();
             },
             allowOutsideClick: false,
             allowEscapeKey: false,
-            showConfirmButton: false
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
         });
 
         await userauth.signInWithEmailAndPassword(email, password);
         Swal.close();
     } catch (error) {
         console.error('Login error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Login Failed',
-            text: getAuthErrorMessage(error)
-        });
+        showToast('error', 'Login Failed', getAuthErrorMessage(error));
     }
 }
 
@@ -237,52 +275,38 @@ async function handleSignup(e) {
     const confirm = document.getElementById('signup-confirm').value;
     
     if (!email || !password || !confirm) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Registration Error',
-            text: 'Please fill in all fields'
-        });
+        showToast('error', 'Registration Error', 'Please fill in all fields');
         return;
     }
     
     if (password !== confirm) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Password Mismatch',
-            text: 'Passwords do not match'
-        });
+        showToast('error', 'Password Mismatch', 'Passwords do not match');
         return;
     }
     
     if (password.length < 6) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Password Too Short',
-            text: 'Password must be at least 6 characters'
-        });
+        showToast('error', 'Password Too Short', 'Password must be at least 6 characters');
         return;
     }
     
     try {
-        Swal.fire({
+        const loadingToast = Swal.fire({
             title: 'Creating Account...',
             didOpen: () => {
                 Swal.showLoading();
             },
             allowOutsideClick: false,
             allowEscapeKey: false,
-            showConfirmButton: false
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
         });
         
         await userauth.createUserWithEmailAndPassword(email, password);
         Swal.close();
     } catch (error) {
         console.error('Signup error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Registration Failed',
-            text: getAuthErrorMessage(error)
-        });
+        showToast('error', 'Registration Failed', getAuthErrorMessage(error));
     }
 }
 
@@ -309,6 +333,19 @@ function getAuthErrorMessage(error) {
         default:
             return `Error: ${error.message}`;
     }
+}
+
+// Show toast notification
+function showToast(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
 }
 
 // Show admin dashboard
@@ -388,22 +425,10 @@ async function updateUserRole(e) {
     
     try {
         await fdatabase.ref(`users/${uid}/role`).set(newRole);
-        Swal.fire({
-            icon: 'success',
-            title: 'Role Updated',
-            text: 'User role has been updated successfully',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000
-        });
+        showToast('success', 'Role Updated', 'User role has been updated successfully');
     } catch (error) {
         console.error('Error updating role:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Update Failed',
-            text: 'Failed to update user role'
-        });
+        showToast('error', 'Update Failed', 'Failed to update user role');
     }
 }
 

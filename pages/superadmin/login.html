@@ -3,15 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Admin Login - Contribution Manager</title>
+  <title>Admin Login - ContriFlow</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/css/global.css">
   <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css">
 </head>
 <body>
+  <a href="/" class="home-link" title="Return to Home">
+    <i class="fas fa-home"></i>
+  </a>
+
   <div class="auth-container">
     <div class="auth-card">
-      <h1>Super Admin</h1>
-      <p>Organization Management Portal</p>
+      <div class="auth-logo">
+        <img src="/assets/logo.svg" alt="ContriFlow" class="logo-image">
+      </div>
+      <h1>ContriFlow Admin</h1>
+      <p>Administrator Login</p>
 
       <div class="error" data-error></div>
       <div class="success" data-success></div>
@@ -19,12 +29,12 @@
       <form id="loginForm" class="form">
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" required placeholder="admin@example.com">
+          <input type="email" id="email" name="email" required placeholder="admin@example.com" autocomplete="username">
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" required placeholder="••••••••">
+          <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
         </div>
 
         <button type="submit" class="btn-primary btn-block">Login</button>
@@ -32,10 +42,12 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+  <!-- Firebase SDK (compat version for global API) -->
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
 
   <!-- Services -->
   <script src="/js/services/org-manager.js"></script>
@@ -50,18 +62,21 @@
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
       try {
-        const { auth, database } = initializeCentralFirebase();
+        const { auth, db } = initializeCentralFirebase();
         window.firebaseAuth = auth;
-        window.firebaseDatabase = database;
-        await superAdminRouter.initialize(auth, database);
-        superAdminLoginPage.init(auth, database, superAdminRouter);
+        window.firebaseDb = db;
+        await superAdminService.initialize(db, auth);
+        await OrgManager.getInstance().initialize(db);
+        await authService.initialize(auth, db);
+        await superAdminRouter.initialize(auth, db);
+        superAdminLoginPage.init(auth, db, superAdminRouter);
       } catch (error) {
         console.error('Initialization error:', error);
-        const errorDiv = document.querySelector('[data-error]');
-        if (errorDiv) {
-          errorDiv.textContent = 'Failed to initialize: ' + error.message;
-          errorDiv.classList.add('show');
-        }
+        Swal.fire({
+          icon: 'error',
+          title: 'Initialization Failed',
+          text: error.message || 'Failed to initialize the application.'
+        });
       }
     });
   </script>

@@ -30,6 +30,19 @@
   font-size: 24px;
 }
 
+.header-branding {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+  display: block;
+  flex-shrink: 0;
+}
+
 .admin-main {
   flex: 1;
   padding: 40px 20px;
@@ -175,3 +188,15 @@
     flex-direction: column;
   }
 }
+
+/* Form button spacing */
+.form button[type="submit"],
+.form button[type="button"] {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.form button:last-child {
+  margin-right: 0;
+}
+

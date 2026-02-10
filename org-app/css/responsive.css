@@ -14,6 +14,26 @@
     .btn {
         width: 100%;
     }
+
+    /* Admin dashboard tab navigation special handling */
+    .admin-dashboard .tab-navigation {
+        flex-wrap: wrap;
+        align-content: flex-start;
+    }
+
+    .admin-dashboard .tab-navigation > div {
+        width: 100%;
+        display: flex;
+        gap: 5px;
+    }
+
+    .admin-dashboard .tab-navigation #back-to-app-btn {
+        width: auto;
+        padding: 10px 16px;
+        font-size: 13px;
+        margin-left: 0;
+        flex-shrink: 0;
+    }
     
     /* Tab navigation responsive */
     .tab-btn span {
@@ -193,5 +213,391 @@
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+    }
+}
+
+/* Extra small screens (below 512px) */
+@media (max-width: 511px) {
+    /* Tabs break to two rows */
+    .tab-navigation > div {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .tab-btn {
+        flex: 0 1 calc(50% - 3px);
+        min-width: auto;
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+
+    .tab-btn i {
+        font-size: 16px;
+    }
+
+    .tab-btn span {
+        display: none;
+    }
+
+    /* Admin dashboard back button responsive */
+    .admin-dashboard .tab-navigation #back-to-app-btn {
+        flex-shrink: 0;
+        padding: 8px 10px;
+        font-size: 11px;
+        align-self: flex-start;
+        margin-top: 8px;
+        width: 100%;
+        order: 3;
+    }
+
+    /* Admin users table responsive */
+    #admin-users-table {
+        display: block;
+        width: 100%;
+    }
+
+    #admin-users-table thead {
+        display: none;
+    }
+
+    #admin-users-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    #admin-users-table tbody tr {
+        display: block;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-lighter);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        width: 100%;
+    }
+
+    #admin-users-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+
+    #admin-users-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border: none;
+        width: 100%;
+    }
+
+    #admin-users-table tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-right: 12px;
+        min-width: 70px;
+    }
+
+    #admin-users-table tbody td:nth-child(1)::before { content: "Email"; }
+    #admin-users-table tbody td:nth-child(2)::before { content: "Role"; }
+    #admin-users-table tbody td:nth-child(3)::before { content: "Status"; }
+    #admin-users-table tbody td:nth-child(4)::before { content: "Actions"; }
+
+    #admin-users-table tbody td:nth-child(1),
+    #admin-users-table tbody td:nth-child(2) {
+        text-align: left;
+    }
+
+    #admin-users-table tbody td:nth-child(3) {
+        text-align: center;
+    }
+
+    /* Actions column */
+    #admin-users-table tbody td:nth-child(4) {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 8px 0;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-lighter);
+    }
+
+    #admin-users-table tbody td:nth-child(4) .btn {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    #admin-users-table tbody td:nth-child(4) .btn i {
+        font-size: 11px;
+    }
+
+    /* Contributions table - Card layout for mobile */
+    .table-responsive {
+        overflow: visible;
+    }
+
+    #contributions-table {
+        display: block;
+        width: 100%;
+    }
+
+    #contributions-table thead {
+        display: none;
+    }
+
+    #contributions-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    #contributions-table tbody tr {
+        display: block;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-lighter);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        width: 100%;
+    }
+
+    #contributions-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+
+    #contributions-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border: none;
+        width: 100%;
+    }
+
+    #contributions-table tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: left;
+        margin-right: 12px;
+        min-width: 70px;
+    }
+
+    #contributions-table tbody td:nth-child(1)::before { content: ""; }
+    #contributions-table tbody td:nth-child(2)::before { content: "Name"; }
+    #contributions-table tbody td:nth-child(3)::before { content: "Amount"; }
+    #contributions-table tbody td:nth-child(4)::before { content: "Status"; }
+    #contributions-table tbody td:nth-child(5)::before { content: "Actions"; }
+
+    /* Format specific columns */
+    #contributions-table tbody td:nth-child(1) {
+        display: none;
+    }
+
+    #contributions-table tbody td:nth-child(2) {
+        text-align: left;
+    }
+
+    #contributions-table tbody td:nth-child(3),
+    #contributions-table tbody td:nth-child(4) {
+        text-align: right;
+    }
+
+    /* Actions column */
+    #contributions-table tbody td:nth-child(5) {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 8px 0;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-lighter);
+    }
+
+    #contributions-table tbody td:nth-child(5)::before {
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+        border-bottom: none;
+    }
+
+    #contributions-table tbody td:nth-child(5) .btn {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    #contributions-table tbody td:nth-child(5) .btn i {
+        font-size: 12px;
+    }
+
+    /* Status badges mobile */
+    .paid, .unpaid {
+        padding: 4px 12px;
+        font-size: 11px;
+    }
+
+    /* Compact table filters */
+    .table-filters {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .filter-group {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-group label {
+        min-width: 60px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .filter-group select {
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
+    }
+
+    #create-month-btn {
+        width: 100%;
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    /* Action bar button responsive */
+    .action-bar {
+        margin-bottom: 12px;
+    }
+
+    #add-contribution-btn {
+        width: 100%;
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    /* Monthly view section headers */
+    .contributions h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    /* Total section responsive */
+    .total-section {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .total-item {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+
+    .total-item strong {
+        font-size: 14px;
+    }
+
+    /* Budget/Expenses Table - Card layout for mobile */
+    #expenses-table {
+        display: block;
+        width: 100%;
+    }
+
+    #expenses-table thead {
+        display: none;
+    }
+
+    #expenses-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    #expenses-table tbody tr {
+        display: block;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-lighter);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        width: 100%;
+    }
+
+    #expenses-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+
+    #expenses-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border: none;
+        width: 100%;
+    }
+
+    #expenses-table tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-right: 12px;
+        min-width: 70px;
+    }
+
+    #expenses-table tbody td:nth-child(1)::before { content: "Category"; }
+    #expenses-table tbody td:nth-child(2)::before { content: "Description"; }
+    #expenses-table tbody td:nth-child(3)::before { content: "Amount"; }
+    #expenses-table tbody td:nth-child(4)::before { content: "Date"; }
+    #expenses-table tbody td:nth-child(5)::before { content: "Actions"; }
+
+    #expenses-table tbody td:nth-child(1),
+    #expenses-table tbody td:nth-child(2) {
+        text-align: left;
+    }
+
+    #expenses-table tbody td:nth-child(3),
+    #expenses-table tbody td:nth-child(4) {
+        text-align: right;
+    }
+
+    /* Actions column */
+    #expenses-table tbody td:nth-child(5) {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 8px 0;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-lighter);
+    }
+
+    #expenses-table tbody td:nth-child(5) .btn {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    #expenses-table tbody td:nth-child(5) .btn i {
+        font-size: 12px;
+    }
+
+    /* Category badge responsive */
+    .category-badge {
+        padding: 4px 8px;
+        font-size: 10px;
     }
 }

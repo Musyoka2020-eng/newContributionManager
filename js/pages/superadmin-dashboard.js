@@ -9,6 +9,7 @@ class SuperAdminDashboard {
     this.router = null;
     this.superAdminService = SuperAdminService.getInstance();
     this.organizations = [];
+    this.editingOrgSlug = null; // Track if we're editing an organization
   }
 
   async init(auth, database, router) {
@@ -39,6 +40,7 @@ class SuperAdminDashboard {
     e.preventDefault();
 
     const orgName = document.querySelector('#orgName').value;
+    const orgStatus = document.querySelector('#orgStatus').value;
     const adminEmail = document.querySelector('#adminEmail').value;
     const adminPassword = document.querySelector('#adminPassword').value;
     const firebaseConfigStr = document.querySelector('#firebaseConfig').value;
@@ -46,37 +48,126 @@ class SuperAdminDashboard {
     try {
       this.clearMessages();
 
-      // Parse Firebase config
-      let firebaseConfig;
-      try {
-        firebaseConfig = JSON.parse(firebaseConfigStr);
-      } catch (parseError) {
-        throw new Error('Invalid Firebase config JSON: ' + parseError.message);
+      // Check if we're in edit mode
+      if (this.editingOrgSlug) {
+        // Edit mode - update all provided fields
+        const updates = {};
+
+        if (orgName.trim()) {
+          updates.name = orgName.trim();
+        }
+
+        if (orgStatus) {
+          updates.status = orgStatus;
+        }
+
+        if (adminEmail.trim()) {
+          updates.adminEmail = adminEmail.trim();
+        }
+
+        if (adminPassword.trim()) {
+          updates.adminPassword = adminPassword;
+        }
+
+        if (firebaseConfigStr.trim()) {
+          try {
+            const firebaseConfig = this.parseFirebaseConfig(firebaseConfigStr);
+            if (firebaseConfig.projectId) {
+              updates.firebaseConfig = firebaseConfig;
+            }
+          } catch (configError) {
+            console.warn('Invalid Firebase config in edit, skipping', configError);
+          }
+        }
+
+        console.log('Edit mode - updates object:', updates);
+
+        if (Object.keys(updates).length === 0) {
+          throw new Error('Please make at least one change');
+        }
+
+        this.showLoading(true);
+
+        // Update the organization
+        await this.superAdminService.updateOrganization(this.editingOrgSlug, updates);
+
+        this.showSuccess(`Organization saved successfully`);
+        this.cancelEditOrg();
+        await this.loadOrganizations();
+      } else {
+        // Create mode
+        if (!orgName.trim()) {
+          throw new Error('Organization name is required');
+        }
+
+        let firebaseConfig = null;
+        
+        // Firebase config is required for creation
+        if (firebaseConfigStr.trim()) {
+          firebaseConfig = this.parseFirebaseConfig(firebaseConfigStr);
+          if (!firebaseConfig.projectId) {
+            throw new Error('Firebase config must include projectId');
+          }
+        } else {
+          throw new Error('Firebase config is required to create an organization');
+        }
+
+        // Admin credentials are optional for creation
+        // If not provided, use placeholder values
+        const email = adminEmail.trim() || `admin-${Date.now()}@temp.local`;
+        const password = adminPassword.trim() || `TempPass${Date.now()}123!`;
+
+        this.showLoading(true);
+
+        // Create organization
+        const org = await this.superAdminService.createOrganization(
+          orgName,
+          firebaseConfig,
+          email,
+          password
+        );
+
+        this.showSuccess(`Organization "${org.name}" created successfully!`);
+        document.querySelector('#createOrgForm').reset();
+        document.querySelector('#orgStatus').value = 'active';
+        await this.loadOrganizations();
       }
-
-      if (!firebaseConfig.projectId) {
-        throw new Error('Firebase config must include projectId');
-      }
-
-      this.showLoading(true);
-
-      // Create organization
-      const org = await this.superAdminService.createOrganization(
-        orgName,
-        firebaseConfig,
-        adminEmail,
-        adminPassword
-      );
-
-      this.showSuccess(`Organization "${org.name}" created successfully!`);
-      document.querySelector('#createOrgForm').reset();
-      await this.loadOrganizations();
     } catch (error) {
       console.error('Create organization error:', error);
       this.showError(error.message);
     } finally {
       this.showLoading(false);
     }
+  }
+
+  parseFirebaseConfig(configStr) {
+    try {
+      // Try parsing as-is first
+      return JSON.parse(configStr);
+    } catch (firstError) {
+      // If that fails, attempt to auto-format
+      try {
+        console.log('First parse failed, attempting auto-format...');
+        const formatted = this.autoFormatJSON(configStr);
+        return JSON.parse(formatted);
+      } catch (formatError) {
+        throw new Error('Invalid Firebase config. Ensure it is valid JSON or JavaScript object format.');
+      }
+    }
+  }
+
+  autoFormatJSON(str) {
+    // Remove extra whitespace and newlines
+    str = str.trim();
+
+    // Add quotes around unquoted keys
+    // Matches: word: (followed by value) and replaces with "word":
+    str = str.replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g, '$1"$2":');
+
+    // Handle edge case of starting key (no leading comma or brace-space)
+    str = str.replace(/^{[\s]*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/, '{"$1":');
+
+    return str;
   }
 
   async loadOrganizations() {
@@ -109,8 +200,9 @@ class SuperAdminDashboard {
         <h3>${org.name}</h3>
         <p><strong>Slug:</strong> ${org.slug}</p>
         <p><strong>Status:</strong> <span class="badge ${org.status === 'active' ? 'badge-success' : 'badge-warning'}">${org.status}</span></p>
-        <p><strong>URL:</strong> <code>/organizations/${org.slug}/</code></p>
+        <p><strong>URL:</strong> <a href="/pages/organization.html?slug=${org.slug}" style="color: #3498db; text-decoration: none;"><code>/org/${org.slug}</code></a></p>
         <div class="org-actions">
+          <button class="btn-primary btn-sm" onclick="superAdminDashboard.editOrg('${org.slug}')">Edit</button>
           <button class="btn-secondary btn-sm" onclick="superAdminDashboard.copyUrl('${org.slug}')">Copy URL</button>
           <button class="btn-danger btn-sm" onclick="superAdminDashboard.deleteOrg('${org.slug}')">Delete</button>
         </div>
@@ -119,16 +211,26 @@ class SuperAdminDashboard {
   }
 
   copyUrl(slug) {
-    const url = `${window.location.origin}/organizations/${slug}/`;
+    const url = `${window.location.origin}/pages/organization.html?slug=${slug}`;
     navigator.clipboard.writeText(url).then(() => {
-      this.showSuccess('Organization URL copied!');
+      this.showSuccess('Organization URL copied to clipboard!');
     }).catch(err => {
       this.showError('Failed to copy URL');
     });
   }
 
   async deleteOrg(slug) {
-    if (!confirm(`Are you sure you want to delete "${slug}"?`)) {
+    const { isConfirmed } = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete Organization',
+      text: `Are you sure you want to delete "${slug}"? This action cannot be undone.`,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#dc3545',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!isConfirmed) {
       return;
     }
 
@@ -142,6 +244,86 @@ class SuperAdminDashboard {
     }
   }
 
+  async editOrg(slug) {
+    try {
+      // Find the organization in the current list
+      const org = this.organizations.find(o => o.slug === slug);
+      if (!org) {
+        throw new Error('Organization not found');
+      }
+
+      // Set editing mode
+      this.editingOrgSlug = slug;
+
+      // Populate form with organization data
+      document.querySelector('#orgName').value = org.name || '';
+      document.querySelector('#orgStatus').value = org.status || 'active';
+
+      // Populate Firebase config if available
+      if (org.firebaseConfig) {
+        document.querySelector('#firebaseConfig').value = JSON.stringify(org.firebaseConfig, null, 2);
+      } else {
+        document.querySelector('#firebaseConfig').value = '';
+      }
+
+      // Clear email and password fields (these are not editable in this form)
+      document.querySelector('#adminEmail').value = '';
+      document.querySelector('#adminPassword').value = '';
+
+      // Update form and section title
+      const section = document.querySelector('.section');
+      const sectionTitle = section.querySelector('h2');
+      sectionTitle.textContent = `Edit Organization: ${org.slug}`;
+
+      const submitBtn = document.querySelector('#createOrgForm button[type="submit"]');
+      submitBtn.textContent = 'Save Changes';
+
+      // Add cancel button if it doesn't exist
+      if (!document.querySelector('#cancelEditBtn')) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.id = 'cancelEditBtn';
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'btn-secondary';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.marginRight = '10px';
+        cancelBtn.addEventListener('click', () => this.cancelEditOrg());
+        submitBtn.parentNode.insertBefore(cancelBtn, submitBtn);
+      } else {
+        document.querySelector('#cancelEditBtn').style.display = 'block';
+      }
+
+      // Scroll to form
+      document.querySelector('#createOrgForm').scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+      console.error('Edit organization error:', error);
+      this.showError('Failed to edit organization: ' + error.message);
+    }
+  }
+
+  cancelEditOrg() {
+    // Reset editing mode
+    this.editingOrgSlug = null;
+
+    // Reset form
+    document.querySelector('#createOrgForm').reset();
+
+    // Reset section title and button
+    const section = document.querySelector('.section');
+    const sectionTitle = section.querySelector('h2');
+    sectionTitle.textContent = 'Create New Organization';
+
+    const submitBtn = document.querySelector('#createOrgForm button[type="submit"]');
+    submitBtn.textContent = 'Create Organization';
+
+    // Hide cancel button
+    const cancelBtn = document.querySelector('#cancelEditBtn');
+    if (cancelBtn) {
+      cancelBtn.style.display = 'none';
+    }
+
+    this.clearMessages();
+  }
+
   async handleLogout() {
     try {
       await this.router.logout();
@@ -151,24 +333,31 @@ class SuperAdminDashboard {
   }
 
   clearMessages() {
-    document.querySelector('[data-error]').classList.remove('show');
-    document.querySelector('[data-success]').classList.remove('show');
+    // No longer needed with toast notifications
   }
 
   showError(message) {
-    const errorDiv = document.querySelector('[data-error]');
-    if (errorDiv) {
-      errorDiv.textContent = message;
-      errorDiv.classList.add('show');
-    }
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000
+    });
   }
 
   showSuccess(message) {
-    const successDiv = document.querySelector('[data-success]');
-    if (successDiv) {
-      successDiv.textContent = message;
-      successDiv.classList.add('show');
-    }
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000
+    });
   }
 
   showLoading(show) {

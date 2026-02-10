@@ -1,21 +1,22 @@
 /**
  * Authentication Service
  * Handles multi-tenant authentication
+ * Uses Firestore for central database
  */
 
 class AuthService {
   constructor() {
     this.centralAuth = null;
-    this.centralDatabase = null;
+    this.centralFirestore = null;
     this.currentUser = null;
     this.currentUserRole = null;
     this.userOrganizations = [];
     this.orgManager = OrgManager.getInstance();
   }
 
-  async initialize(centralAuth, centralDatabase) {
+  async initialize(centralAuth, centralFirestore) {
     this.centralAuth = centralAuth;
-    this.centralDatabase = centralDatabase;
+    this.centralFirestore = centralFirestore;
 
     this.centralAuth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -37,18 +38,17 @@ class AuthService {
         photoURL: user.photoURL
       };
 
-      const userSnapshot = await this.centralDatabase
-        .ref(`users/${user.uid}`)
-        .once('value');
+      const userDoc = await this.centralFirestore.collection('users').doc(user.uid).get();
 
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.val();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
         this.currentUserRole = userData.role || 'user';
       } else {
-        await this.centralDatabase.ref(`users/${user.uid}`).set({
+        // Create user document in Firestore
+        await this.centralFirestore.collection('users').doc(user.uid).set({
           email: user.email,
           role: 'user',
-          createdAt: firebase.database.ServerValue.TIMESTAMP
+          createdAt: new Date().toISOString()
         });
         this.currentUserRole = 'user';
       }
@@ -80,10 +80,10 @@ class AuthService {
 
       const user = result.user;
 
-      await this.centralDatabase.ref(`users/${user.uid}`).set({
+      await this.centralFirestore.collection('users').doc(user.uid).set({
         email: email,
         role: 'user',
-        createdAt: firebase.database.ServerValue.TIMESTAMP
+        createdAt: new Date().toISOString()
       });
 
       console.log(`User signed up: ${email}`);

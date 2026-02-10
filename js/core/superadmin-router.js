@@ -9,12 +9,12 @@ class SuperAdminRouter {
     this.authService = AuthService.getInstance();
     this.superAdminService = SuperAdminService.getInstance();
     this.centralAuth = null;
-    this.centralDatabase = null;
+    this.centralFirestore = null;
   }
 
-  async initialize(centralAuth, centralDatabase) {
+  async initialize(centralAuth, centralFirestore) {
     this.centralAuth = centralAuth;
-    this.centralDatabase = centralDatabase;
+    this.centralFirestore = centralFirestore;
 
     // Check auth state
     this.centralAuth.onAuthStateChanged((user) => {
@@ -61,10 +61,8 @@ class SuperAdminRouter {
 
   async checkSuperAdminStatus(userId) {
     try {
-      const snapshot = await this.centralDatabase
-        .ref(`superadminUsers/${userId}`)
-        .once('value');
-      return snapshot.exists();
+      const doc = await this.centralFirestore.collection('superadminUsers').doc(userId).get();
+      return doc.exists;
     } catch (error) {
       console.error('Failed to check super admin status:', error);
       return false;

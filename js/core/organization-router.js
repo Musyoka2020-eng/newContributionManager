@@ -8,11 +8,11 @@ class OrganizationRouter {
   constructor() {
     this.orgManager = OrgManager.getInstance();
     this.organizationAdapter = OrganizationAdapter.getInstance();
-    this.centralDatabase = null;
+    this.centralFirestore = null;
   }
 
-  async initialize(centralDatabase) {
-    this.centralDatabase = centralDatabase;
+  async initialize(centralFirestore) {
+    this.centralFirestore = centralFirestore;
     await this.handleRouteChange();
   }
 
@@ -22,11 +22,11 @@ class OrganizationRouter {
 
       if (!slug) {
         console.warn('No organization slug in URL');
-        window.location.href = '/superadmin/login.html';
+        window.location.href = '/pages/superadmin/login.html';
         return;
       }
 
-      // Load organization from central database
+      // Load organization from central Firestore
       await this.loadOrganization(slug);
     } catch (error) {
       console.error('Route change failed:', error);
@@ -35,21 +35,33 @@ class OrganizationRouter {
   }
 
   extractOrgSlugFromURL() {
+    // Try to extract from pathname first: /organizations/[slug]/
     const path = window.location.pathname;
-    const match = path.match(/\/organizations\/([^/]+)/);
-    return match ? match[1] : null;
+    const pathnameMatch = path.match(/\/organizations\/([^/]+)/);
+    if (pathnameMatch && pathnameMatch[1]) {
+      return pathnameMatch[1];
+    }
+
+    // Fallback to query parameter: ?slug=[slug]
+    const params = new URLSearchParams(window.location.search);
+    const slugParam = params.get('slug');
+    if (slugParam) {
+      return slugParam;
+    }
+
+    return null;
   }
 
   async loadOrganization(slug) {
     try {
       console.log(`Loading organization: ${slug}`);
 
-      // Load org metadata from central database
+      // Load org metadata from central Firestore
       const org = await this.orgManager.loadOrganization(slug);
 
       // Initialize organization adapter with org config
       // This will load organization's Firebase config and organization scripts
-      await this.organizationAdapter.initializeOrganization(org, this.centralDatabase);
+      await this.organizationAdapter.initializeOrganization(org, this.centralFirestore);
 
       console.log(`Organization loaded and initialized: ${slug}`);
       

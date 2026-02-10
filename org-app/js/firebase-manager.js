@@ -1,6 +1,19 @@
 // Firebase Manager Module
 // Handles all Firebase initialization and data operations
 
+// Show toast notification
+function showToast(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
 const FirebaseManager = (function() {
     // Get Firebase configuration
     // In multi-tenant mode: injected by OrganizationAdapter
@@ -97,11 +110,7 @@ const FirebaseManager = (function() {
                 return { contributionsData, blacklistData, budgetData, campaignsData, lastSyncTime };
             } catch (error) {
                 console.error('Error loading data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Data Loading Error',
-                    text: error.message || 'Could not load contribution data.'
-                });
+                showToast('error', 'Data Loading Error', error.message || 'Could not load contribution data.');
                 return {
                     contributionsData: {},
                     blacklistData: { blacklistedMembers: [] },
@@ -166,11 +175,7 @@ const FirebaseManager = (function() {
                 return true;
             } catch (error) {
                 console.error('Error saving data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Save Error',
-                    text: error.message || 'Failed to save data.'
-                });
+                showToast('error', 'Save Error', error.message || 'Failed to save data.');
                 return false;
             }
         },
@@ -192,22 +197,12 @@ const FirebaseManager = (function() {
                 lastSyncTime = new Date().getTime();
                 await database.ref('meta/lastSync').set(lastSyncTime);
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sync Complete',
-                    text: 'Your data has been synchronized with Firebase.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                showToast('success', 'Sync Complete', 'Your data has been synchronized with Firebase.');
 
                 return lastSyncTime;
             } catch (error) {
                 console.error('Error syncing data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Sync Error',
-                    text: 'Failed to sync data with Firebase.'
-                });
+                showToast('error', 'Sync Error', 'Failed to sync data with Firebase.');
                 return null;
             }
         },

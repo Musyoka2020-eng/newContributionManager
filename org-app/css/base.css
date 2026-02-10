@@ -81,7 +81,6 @@ body {
 }
 
 .container {
-    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -284,6 +283,34 @@ body[data-theme="dark"] .swal2-select {
     font-size: 16px;
     font-weight: 500;
     margin-top: 10px;
+}
+
+/* Home Link Navigation */
+.home-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999;
+    width: 40px;
+    height: 40px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    color: var(--primary-color);
+    text-decoration: none;
+    border: 2px solid var(--primary-color);
+    transition: all 0.3s ease;
+    font-size: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.home-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* Theme Toggle */

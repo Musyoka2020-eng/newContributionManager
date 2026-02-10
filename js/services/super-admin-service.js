@@ -1,16 +1,17 @@
 /**
  * Super Admin Service
  * Handles organization creation and management
+ * Uses Firestore for central database
  */
 
 class SuperAdminService {
   constructor() {
-    this.centralDatabase = null;
+    this.centralFirestore = null;
     this.centralAuth = null;
   }
 
-  async initialize(centralDatabase, centralAuth) {
-    this.centralDatabase = centralDatabase;
+  async initialize(centralFirestore, centralAuth) {
+    this.centralFirestore = centralFirestore;
     this.centralAuth = centralAuth;
   }
 
@@ -23,12 +24,11 @@ class SuperAdminService {
       const slug = this.generateSlug(orgName);
       const orgId = this.generateId();
 
-      // Check if slug exists
-      const existingOrg = await this.centralDatabase
-        .ref(`organizations/${slug}`)
-        .once('value');
+      // Check if slug exists in Firestore
+      const orgRef = firebase.firestore().collection('organizations').doc(slug);
+      const existingOrg = await orgRef.get();
 
-      if (existingOrg.exists()) {
+      if (existingOrg.exists) {
         throw new Error(`Organization slug already exists: ${slug}`);
       }
 
@@ -39,27 +39,48 @@ class SuperAdminService {
       const orgDatabase = firebase.database(orgFirebaseApp);
 
       // Create admin user in organization's Firebase
-      const adminUser = await orgAuth.createUserWithEmailAndPassword(adminEmail, adminPassword);
-      const adminUid = adminUser.user.uid;
+      let adminUid;
+      let adminUser;
 
-      // Add admin to users in organization's database
+      try {
+        // Try to create the user
+        adminUser = await orgAuth.createUserWithEmailAndPassword(adminEmail, adminPassword);
+        adminUid = adminUser.user.uid;
+        console.log('Created new admin user:', adminEmail);
+      } catch (authError) {
+        // If email already exists, try to sign in with the provided password
+        if (authError.code === 'auth/email-already-in-use') {
+          console.warn('Email already exists in organization Firebase, attempting to sign in...');
+          try {
+            adminUser = await orgAuth.signInWithEmailAndPassword(adminEmail, adminPassword);
+            adminUid = adminUser.user.uid;
+            console.log('Using existing admin user:', adminEmail);
+          } catch (signInError) {
+            throw new Error(`Email already in use and password does not match. Please use a different email or verify the password.`);
+          }
+        } else {
+          throw authError;
+        }
+      }
+
+      // Add admin to users in organization's Realtime Database
       await orgDatabase.ref(`users/${adminUid}`).set({
         email: adminEmail,
         role: 'admin',
         createdAt: firebase.database.ServerValue.TIMESTAMP
       });
 
-      // Create organization metadata in central DB (NO members list)
+      // Create organization metadata in central Firestore
       const orgData = {
         id: orgId,
         name: orgName,
         slug: slug,
         firebaseConfig: firebaseConfig,
         status: 'active',
-        createdAt: firebase.database.ServerValue.TIMESTAMP
+        createdAt: new Date().toISOString()
       };
 
-      await this.centralDatabase.ref(`organizations/${slug}`).set(orgData);
+      await this.centralFirestore.collection('organizations').doc(slug).set(orgData);
 
       // Clean up temporary Firebase instance
       await firebase.app(orgAppName).delete();
@@ -110,21 +131,76 @@ class SuperAdminService {
 
   async getAllOrganizations() {
     try {
-      const snapshot = await this.centralDatabase
-        .ref('organizations')
-        .once('value');
+      const db = this.centralFirestore;
+      const querySnapshot = await db.collection('organizations').get();
 
       const organizations = [];
-      snapshot.forEach((childSnapshot) => {
+      querySnapshot.forEach((doc) => {
         organizations.push({
-          slug: childSnapshot.key,
-          ...childSnapshot.val()
+          slug: doc.id,
+          ...doc.data()
         });
       });
 
       return organizations;
     } catch (error) {
       console.error('Failed to fetch organizations:', error);
+      throw error;
+    }
+  }
+
+  async updateOrgStatus(slug, status) {
+    try {
+      if (!slug) {
+        throw new Error('Organization slug is required');
+      }
+
+      const db = this.centralFirestore;
+      
+      // If status is 'deleted', completely remove from Firestore
+      if (status === 'deleted') {
+        await db.collection('organizations').doc(slug).delete();
+        console.log(`Organization "${slug}" permanently deleted from database`);
+      } else {
+        // For other statuses, just update the status field
+        await db.collection('organizations').doc(slug).update({
+          status: status,
+          updatedAt: new Date().toISOString()
+        });
+        console.log(`Organization "${slug}" status updated to: ${status}`);
+      }
+
+      return { slug, status };
+    } catch (error) {
+      console.error(`Failed to update organization status: ${slug}`, error);
+      throw error;
+    }
+  }
+
+  async updateOrganization(slug, updates) {
+    try {
+      if (!slug) {
+        throw new Error('Organization slug is required');
+      }
+
+      console.log(`Updating organization ${slug} with:`, updates);
+
+      const db = this.centralFirestore;
+      
+      // Update organization fields in Firestore
+      const updateData = {
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+
+      console.log(`Final update data:`, updateData);
+
+      await db.collection('organizations').doc(slug).update(updateData);
+
+      console.log(`Organization "${slug}" updated successfully`);
+      return { slug, ...updates };
+    } catch (error) {
+      console.error(`Failed to update organization: ${slug}`, error);
       throw error;
     }
   }

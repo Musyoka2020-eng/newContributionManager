@@ -1,40 +1,39 @@
 /**
  * Organization Manager Service
  * Manages current organization context and multi-tenant operations
+ * Uses Firestore for central database
  */
 
 class OrgManager {
   constructor() {
     this.currentOrg = null;
     this.userOrganizations = [];
-    this.centralDatabase = null;
+    this.centralFirestore = null;
     this.orgDatabase = null;
     this.orgFirebaseApp = null;
   }
 
-  async initialize(centralDatabase) {
-    this.centralDatabase = centralDatabase;
+  async initialize(centralFirestore) {
+    this.centralFirestore = centralFirestore;
     return true;
   }
 
   async loadUserOrganizations(userId) {
     try {
-      const snapshot = await this.centralDatabase
-        .ref(`userOrganizations/${userId}`)
-        .once('value');
+      // Get user organizations from Firestore
+      const userOrgRef = this.centralFirestore.collection('userOrganizations').doc(userId);
+      const userOrgDoc = await userOrgRef.get();
       
-      const orgSlugs = snapshot.val() || {};
+      const orgSlugs = userOrgDoc.exists ? (userOrgDoc.data()?.organizations || []) : [];
       const organizations = [];
 
-      for (const slug of Object.keys(orgSlugs)) {
-        const orgSnapshot = await this.centralDatabase
-          .ref(`organizations/${slug}`)
-          .once('value');
+      for (const slug of orgSlugs) {
+        const orgDoc = await this.centralFirestore.collection('organizations').doc(slug).get();
         
-        if (orgSnapshot.exists()) {
+        if (orgDoc.exists) {
           organizations.push({
-            slug: slug,
-            ...orgSnapshot.val()
+            slug: orgDoc.id,
+            ...orgDoc.data()
           });
         }
       }
@@ -49,17 +48,15 @@ class OrgManager {
 
   async loadOrganization(slug) {
     try {
-      const snapshot = await this.centralDatabase
-        .ref(`organizations/${slug}`)
-        .once('value');
+      const orgDoc = await this.centralFirestore.collection('organizations').doc(slug).get();
       
-      if (!snapshot.exists()) {
+      if (!orgDoc.exists) {
         throw new Error(`Organization not found: ${slug}`);
       }
 
       this.currentOrg = {
-        slug: slug,
-        ...snapshot.val()
+        slug: orgDoc.id,
+        ...orgDoc.data()
       };
       
       return this.currentOrg;
@@ -99,17 +96,25 @@ class OrgManager {
     try {
       if (!this.currentOrg) throw new Error('No organization loaded');
 
-      await this.centralDatabase
-        .ref(`organizations/${this.currentOrg.slug}/members/${userId}`)
-        .set({
-          email: email,
-          role: role,
-          addedAt: firebase.database.ServerValue.TIMESTAMP
-        });
+      const organizationRef = this.centralFirestore.collection('organizations').doc(this.currentOrg.slug);
+      
+      // Add member to organization
+      await organizationRef.collection('members').doc(userId).set({
+        email: email,
+        role: role,
+        addedAt: new Date().toISOString()
+      });
 
-      await this.centralDatabase
-        .ref(`userOrganizations/${userId}/${this.currentOrg.slug}`)
-        .set(true);
+      // Add organization to user's organization list
+      const userOrgRef = this.centralFirestore.collection('userOrganizations').doc(userId);
+      await userOrgRef.update({
+        organizations: firebase.firestore.FieldValue.arrayUnion(this.currentOrg.slug)
+      }).catch(async () => {
+        // If document doesn't exist, create it
+        await userOrgRef.set({
+          organizations: [this.currentOrg.slug]
+        });
+      });
 
       return true;
     } catch (error) {
@@ -122,9 +127,12 @@ class OrgManager {
     try {
       if (!this.currentOrg) throw new Error('No organization loaded');
 
-      await this.centralDatabase
-        .ref(`organizations/${this.currentOrg.slug}/members/${userId}/role`)
-        .set(newRole);
+      await this.centralFirestore
+        .collection('organizations')
+        .doc(this.currentOrg.slug)
+        .collection('members')
+        .doc(userId)
+        .update({ role: newRole });
 
       return true;
     } catch (error) {
@@ -137,13 +145,21 @@ class OrgManager {
     try {
       if (!this.currentOrg) throw new Error('No organization loaded');
 
-      await this.centralDatabase
-        .ref(`organizations/${this.currentOrg.slug}/members/${userId}`)
-        .remove();
+      // Remove member from organization
+      await this.centralFirestore
+        .collection('organizations')
+        .doc(this.currentOrg.slug)
+        .collection('members')
+        .doc(userId)
+        .delete();
 
-      await this.centralDatabase
-        .ref(`userOrganizations/${userId}/${this.currentOrg.slug}`)
-        .remove();
+      // Remove organization from user's organization list
+      await this.centralFirestore
+        .collection('userOrganizations')
+        .doc(userId)
+        .update({
+          organizations: firebase.firestore.FieldValue.arrayRemove(this.currentOrg.slug)
+        });
 
       return true;
     } catch (error) {

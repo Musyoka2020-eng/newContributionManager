@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Organization</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/error-pages.css">
+</head>
+
+<body>
+    <div class="error-container">
+        <div class="error-icon info">
+            <i class="fas fa-inbox"></i>
+        </div>
+        <div class="error-title">No Organization Selected</div>
+        <div class="error-message">
+            You need to select an organization to access the contribution manager. Please go back to the home page and
+            choose one.
+        </div>
+
+        <div class="info-box">
+            <h4><i class="fas fa-info-circle"></i> What happened?</h4>
+            <p>You tried to access the application directly without selecting an organization first. This could happen
+                if you bookmarked the app page or came from a broken link.</p>
+        </div>
+
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                Go to Home Page
+            </a>
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </a>
+        </div>
+
+        <div class="error-details">
+            <p><strong>Tip:</strong> On the home page, you'll see a list of available organizations. Click on the one
+                you want to manage.</p>
+        </div>
+    </div>
+</body>
+
+</html>

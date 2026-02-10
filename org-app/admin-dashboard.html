@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Contribution Manager</title>
+    <title>Admin Dashboard - ContriFlow</title>
     <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com https://*.firebaseio.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.firebaseio.com https://contribution-manager-8fe43-default-rtdb.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://cdn.jsdelivr.net https://www.gstatic.com; frame-src 'self';">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,28 +32,26 @@
     <div class="container admin-dashboard">
         <!-- Header Component -->
         <header>
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div>
-                    <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
-                    <p class="subtitle">Manage users and view financial overview</p>
-                </div>
-                <button id="back-to-app-btn" class="btn btn-secondary" style="height: fit-content;">
-                    <i class="fas fa-arrow-left"></i> Back to App
-                </button>
-            </div>
+            <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+            <p class="subtitle">Manage users and view financial overview</p>
         </header>
 
         <!-- Admin Content -->
         <main>
             <!-- Tab Navigation -->
             <nav class="tab-navigation" role="tablist">
-                <button class="tab-btn active" data-tab="users" role="tab" aria-selected="true" aria-controls="users-tab">
-                    <i class="fas fa-users"></i>
-                    <span>User Management</span>
-                </button>
-                <button class="tab-btn" data-tab="financial" role="tab" aria-selected="false" aria-controls="financial-tab">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Financial Overview</span>
+                <div>
+                    <button class="tab-btn active" data-tab="users" role="tab" aria-selected="true" aria-controls="users-tab">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </button>
+                    <button class="tab-btn" data-tab="financial" role="tab" aria-selected="false" aria-controls="financial-tab">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Financial Overview</span>
+                    </button>
+                </div>
+                <button id="back-to-app-btn" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to App
                 </button>
             </nav>
 
@@ -209,7 +207,7 @@
 
         <footer>
             <p>
-                <i class="fas fa-copyright"></i> <span id="current-year-footer"></span> Contribution Manager
+                <i class="fas fa-copyright"></i> <span id="current-year-footer"></span> ContriFlow
                 <span class="footer-separator">|</span>
                 <span class="version">v2.1.0</span>
             </p>

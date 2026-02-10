@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Organizations - ContriFlow</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/organizations.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <img src="../assets/logo.svg" alt="ContriFlow" class="logo-image">
+                <span>ContriFlow</span>
+            </a>
+            <nav class="header-nav">
+                <a href="/pages/superadmin/login.html" class="btn-back">
+                    <i class="fas fa-lock"></i>
+                    Admin
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1>Choose Your Organization</h1>
+            <p>Select an organization to manage contributions, view reports, and track member activity.</p>
+            
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search organizations by name..." />
+                <span id="search-count" class="search-count"></span>
+            </div>
+        </section>
+
+        <div id="orgs-container">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="pagination-controls" class="pagination-controls" style="display: none;">
+            <button id="prev-btn" class="pagination-btn">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span id="page-info" class="page-info"></span>
+            <button id="next-btn" class="pagination-btn">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ContriFlow. All rights reserved.</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="../config-central.js"></script>
+    <script src="../js/pages/organizations-loader.js"></script>
+</body>
+</html>
