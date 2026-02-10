@@ -28,6 +28,12 @@ build/
 # ==========================
 .env
 .env.local
+
+# ==========================
+# Documentation (Internal Only)
+# ==========================
+SECURITY_ANALYSIS.md
+SYSTEM_ARCHITECTURE.md
 .env.*.local
 .firebase/
 .firebaserc
