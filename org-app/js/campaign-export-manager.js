@@ -147,7 +147,6 @@ const CampaignExportManager = (function () {
                     return;
                 }
 
-                console.log(`[${format}] Blob created: ${blob.size} bytes, type: ${blob.type}`);
                 const blobUrl = URL.createObjectURL(blob);
 
                 if (!blobUrl) {
@@ -155,10 +154,7 @@ const CampaignExportManager = (function () {
                     return;
                 }
 
-                console.log(`[${format}] Blob URL created: ${blobUrl.substring(0, 50)}`);
-
                 if (navigator.msSaveOrOpenBlob) {
-                    console.log(`[${format}] Using IE/Edge msSaveOrOpenBlob`);
                     const saveSuccess = navigator.msSaveOrOpenBlob(blob, filename);
                     if (saveSuccess === false) {
                         reject(new Error('Browser blocked the download'));
@@ -179,13 +175,11 @@ const CampaignExportManager = (function () {
                 link.style.position = 'absolute';
                 link.style.left = '-9999px';
                 document.body.appendChild(link);
-                console.log(`[${format}] Link appended to DOM, calling click()`);
 
                 try {
                     link.click();
-                    console.log(`[${format}] Link clicked successfully`);
                 } catch (clickError) {
-                    console.error(`[${format}] Click failed:`, clickError);
+                    console.error(`[${format}] Download failed:`, clickError.message);
                     document.body.removeChild(link);
                     reject(new Error('Unable to trigger download: ' + clickError.message));
                     return;

@@ -249,7 +249,7 @@ const DOMManager = (function() {
             }
             
             if (missing.length > 0) {
-                console.warn('Missing DOM elements:', missing);
+                // Some DOM elements may not be available on all pages
                 return false;
             }
             return true;

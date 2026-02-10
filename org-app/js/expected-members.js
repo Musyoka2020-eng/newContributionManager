@@ -233,11 +233,8 @@ const ExpectedMembersManager = (function() {
             const expectedMemberAmountInput = document.getElementById('expected-member-amount');
             
             if (!addExpectedMemberBtn || !expectedMembersList) {
-                console.log('Expected members UI elements not found');
                 return;
             }
-
-            console.log('✅ Expected Members Manager initialized successfully');
 
             // Initial render
             this.renderExpectedMembers(expectedMembersList);

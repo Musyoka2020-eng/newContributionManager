@@ -21,7 +21,6 @@ class OrganizationRouter {
       const slug = this.extractOrgSlugFromURL();
 
       if (!slug) {
-        console.warn('No organization slug in URL');
         window.location.href = '/pages/superadmin/login.html';
         return;
       }
@@ -54,16 +53,12 @@ class OrganizationRouter {
 
   async loadOrganization(slug) {
     try {
-      console.log(`Loading organization: ${slug}`);
-
       // Load org metadata from central Firestore
       const org = await this.orgManager.loadOrganization(slug);
 
       // Initialize organization adapter with org config
       // This will load organization's Firebase config and organization scripts
       await this.organizationAdapter.initializeOrganization(org, this.centralFirestore);
-
-      console.log(`Organization loaded and initialized: ${slug}`);
       
       // Fire event for pages to know org is ready
       document.dispatchEvent(new CustomEvent('org:ready', { detail: { org, slug } }));

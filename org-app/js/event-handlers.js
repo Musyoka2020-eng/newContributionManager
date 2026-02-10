@@ -1278,7 +1278,6 @@ const EventHandlers = (function () {
                         cancelButtonText: 'Cancel',
                         cancelButtonColor: '#999',
                         didOpen: (modal) => {
-                            console.log('Share modal opened');
                             
                             // Remove any existing listeners by cloning
                             const csvBtn = document.getElementById('csv-export-btn');

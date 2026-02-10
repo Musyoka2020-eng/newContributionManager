@@ -250,7 +250,7 @@ const SpecialGivingManager = (function() {
                     campaignsData[campaignId].amountRaised += amountDifference;
                 }
 
-                console.log('✅ Contribution updated');
+                // Contribution updated successfully
                 return true;
             } catch (error) {
                 console.error('Error updating contribution:', error);
@@ -268,7 +268,7 @@ const SpecialGivingManager = (function() {
                 // Remove from data
                 delete campaignsData[campaignId];
 
-                console.log('✅ Campaign deleted');
+                // Campaign deleted successfully
                 return true;
             } catch (error) {
                 console.error('Error removing campaign:', error);
@@ -286,7 +286,7 @@ const SpecialGivingManager = (function() {
                 // Update data
                 Object.assign(campaignsData[campaignId], updates);
 
-                console.log('✅ Campaign updated');
+                // Campaign updated successfully
                 return true;
             } catch (error) {
                 console.error('Error updating campaign:', error);

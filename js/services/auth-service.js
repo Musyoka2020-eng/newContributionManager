@@ -55,8 +55,6 @@ class AuthService {
 
       await this.orgManager.loadUserOrganizations(user.uid);
       this.userOrganizations = this.orgManager.userOrganizations;
-
-      console.log('User sign in completed:', this.currentUser.email);
     } catch (error) {
       console.error('Failed to handle user sign in:', error);
       throw error;
@@ -68,7 +66,6 @@ class AuthService {
     this.currentUserRole = null;
     this.userOrganizations = [];
     this.orgManager.clearCurrentOrg();
-    console.log('User signed out');
   }
 
   async signUp(email, password) {
@@ -86,7 +83,6 @@ class AuthService {
         createdAt: new Date().toISOString()
       });
 
-      console.log(`User signed up: ${email}`);
       return { uid: user.uid, email: user.email };
     } catch (error) {
       console.error('Sign up failed:', error);

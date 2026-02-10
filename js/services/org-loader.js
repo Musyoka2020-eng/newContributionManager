@@ -55,8 +55,6 @@ class OrgLoader {
 
       this.orgManager.setOrgFirebaseApp(firebaseApp);
       this.orgManager.setOrgDatabase(database);
-
-      console.log(`Organization Firebase initialized: ${org.slug}`);
     } catch (error) {
       console.error('Failed to initialize organization Firebase:', error);
       throw error;
@@ -70,7 +68,7 @@ class OrgLoader {
           await firebase.app(`org_${slug}`).delete();
           delete this.loadedInstances[slug];
         } catch (error) {
-          console.warn(`Failed to delete Firebase app for ${slug}:`, error);
+          // Silently ignore cleanup failures
         }
       }
 

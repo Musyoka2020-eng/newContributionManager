@@ -38,14 +38,12 @@ class SuperAdminRouter {
       const isSuperAdmin = await this.checkSuperAdminStatus(user.uid);
 
       if (!isSuperAdmin) {
-        console.warn('User is not a super admin');
         await this.centralAuth.signOut();
         window.location.href = '/superadmin/login.html';
         return;
       }
 
       // User is super admin
-      console.log('Super admin authenticated:', user.email);
 
       // Redirect from login to dashboard if on login page
       if (currentPath.includes('/superadmin/login')) {
@@ -83,11 +81,8 @@ class SuperAdminRouter {
         await this.centralAuth.signOut();
         throw new Error('User is not a super admin');
       }
-
-      console.log('Super admin logged in:', email);
       return user;
     } catch (error) {
-      console.error('Super admin login failed:', error);
       throw error;
     }
   }

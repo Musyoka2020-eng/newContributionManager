@@ -46,15 +46,12 @@ class SuperAdminService {
         // Try to create the user
         adminUser = await orgAuth.createUserWithEmailAndPassword(adminEmail, adminPassword);
         adminUid = adminUser.user.uid;
-        console.log('Created new admin user:', adminEmail);
       } catch (authError) {
         // If email already exists, try to sign in with the provided password
         if (authError.code === 'auth/email-already-in-use') {
-          console.warn('Email already exists in organization Firebase, attempting to sign in...');
           try {
             adminUser = await orgAuth.signInWithEmailAndPassword(adminEmail, adminPassword);
             adminUid = adminUser.user.uid;
-            console.log('Using existing admin user:', adminEmail);
           } catch (signInError) {
             throw new Error(`Email already in use and password does not match. Please use a different email or verify the password.`);
           }

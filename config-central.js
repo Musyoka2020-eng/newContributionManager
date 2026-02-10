@@ -39,7 +39,7 @@ function initializeCentralFirebase() {
       centralAuth = firebase.auth(centralApp);
     }
 
-    console.log('Central Firebase (Firestore) initialized');
+    // Firebase initialized
     return {
       app: centralApp,
       db: centralFirestore,

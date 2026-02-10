@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
     <!-- External CDN Links -->
     <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com https://*.firebaseio.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.firebaseio.com https://contribution-manager-8fe43-default-rtdb.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self';">
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com https://apis.google.com https://*.firebaseio.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self' https://*.firebaseapp.com;">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css">
     
@@ -467,8 +467,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    <!-- Theme Manager (load first to prevent flash) -->
-    <script src="js/theme-manager.js"></script>
+    <!-- Initialize organization context from sessionStorage (must run before firebase-manager.js) -->
+    <script>
+        const orgContextStr = sessionStorage.getItem('orgContext');
+        if (orgContextStr) {
+            const orgContext = JSON.parse(orgContextStr);
+            window.orgFirebaseConfig = orgContext.firebaseConfig;
+            window.orgSlug = orgContext.slug;
+            window.orgName = orgContext.name;
+            console.log('Organization context initialized:', orgContext.slug);
+        } else {
+            console.warn('No organization context found in sessionStorage - redirecting to organization selection');
+            window.location.href = '/pages/error-pages/no-organization.html';
+        }
+    </script>
 
     <!-- Application Modules (order matters!) -->
     <script src="js/utils.js"></script>

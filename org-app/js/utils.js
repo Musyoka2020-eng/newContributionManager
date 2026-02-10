@@ -259,7 +259,6 @@ const Utils = (function() {
             const years = this.getAvailableYears(contributionsData);
             
             if (years.length === 0) {
-                console.warn('No years found in contributions data');
                 return;
             }
 

@@ -15,14 +15,13 @@ function showToast(icon, title, text) {
 }
 
 const FirebaseManager = (function() {
-    // Get Firebase configuration
-    // In multi-tenant mode: injected by OrganizationAdapter
-    // In standalone mode: use hardcoded fallback
+    // Get Firebase configuration from injected organization context
+    // orgFirebaseConfig must be provided by the organization loader
     let database;
     let auth;
     
     if (typeof window !== 'undefined' && window.orgFirebaseConfig) {
-        // Multi-tenant mode: use injected organization-specific config
+        // Use injected organization-specific config
         try {
             const appName = `org_${window.orgSlug}`;
             
@@ -30,40 +29,18 @@ const FirebaseManager = (function() {
             const existingApp = firebase.app(appName);
             database = firebase.database(existingApp);
             auth = firebase.auth(existingApp);
-            console.log('Using existing Firebase app for organization:', window.orgSlug);
+            // Using existing Firebase app instance
         } catch (error) {
             // App doesn't exist, initialize it
             const firebaseConfig = window.orgFirebaseConfig;
             const firebaseApp = firebase.initializeApp(firebaseConfig, `org_${window.orgSlug}`);
             database = firebase.database(firebaseApp);
             auth = firebase.auth(firebaseApp);
-            console.log('Initialized Firebase app for organization:', window.orgSlug);
+            // Firebase app initialized for organization
         }
     } else {
-        // Standalone mode: use hardcoded config
-        const firebaseConfig = {
-            apiKey: "AIzaSyB2JTsgg7CUjKKSLctAckWw0KeMcxXurfA",
-            authDomain: "contribution-manager-8fe43.firebaseapp.com",
-            databaseURL: "https://contribution-manager-8fe43-default-rtdb.firebaseio.com",
-            projectId: "contribution-manager-8fe43",
-            storageBucket: "contribution-manager-8fe43.firebasestorage.app",
-            messagingSenderId: "831746937132",
-            appId: "1:831746937132:web:35012b0a37bfdf09a1dc89",
-            measurementId: "G-H73KB8R7XZ"
-        };
-        
-        try {
-            const defaultApp = firebase.app();
-            database = firebase.database(defaultApp);
-            auth = firebase.auth(defaultApp);
-            console.log('Using existing Firebase initialization (standalone mode)');
-        } catch (error) {
-            // Firebase not initialized yet, initialize it
-            firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            auth = firebase.auth();
-            console.log('Initialized Firebase with hardcoded config (standalone mode)');
-        }
+        // Organization config not provided - this should only happen if accessed directly without proper flow
+        throw new Error('Organization Firebase configuration not provided. Access the app through the proper organization loader.');
     }
 
     let lastSyncTime = null;

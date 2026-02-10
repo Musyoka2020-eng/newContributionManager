@@ -80,8 +80,6 @@ class SuperAdminDashboard {
           }
         }
 
-        console.log('Edit mode - updates object:', updates);
-
         if (Object.keys(updates).length === 0) {
           throw new Error('Please make at least one change');
         }
@@ -114,8 +112,8 @@ class SuperAdminDashboard {
 
         // Admin credentials are optional for creation
         // If not provided, use placeholder values
-        const email = adminEmail.trim() || `admin-${Date.now()}@temp.local`;
-        const password = adminPassword.trim() || `TempPass${Date.now()}123!`;
+        const email = adminEmail.trim() || `admin@temp.local`;
+        const password = adminPassword.trim() || `TempPass123!`;
 
         this.showLoading(true);
 
@@ -147,7 +145,6 @@ class SuperAdminDashboard {
     } catch (firstError) {
       // If that fails, attempt to auto-format
       try {
-        console.log('First parse failed, attempting auto-format...');
         const formatted = this.autoFormatJSON(configStr);
         return JSON.parse(formatted);
       } catch (formatError) {
